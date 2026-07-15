@@ -1089,209 +1089,209 @@
       const text = document.getElementById('statusText');
       text.textContent = "확인 중...";
 
-    try {
-    const res = await fetch(
-        "https://aware-jot-salvation.ngrok-free.dev/health",
-        {
+      try {
+        const res = await fetch(
+          "https://aware-jot-salvation.ngrok-free.dev/health",
+          {
             method: "GET",
             headers: {
-                "ngrok-skip-browser-warning": "1"
+              "ngrok-skip-browser-warning": "1"
             }
-        }
-    );
+          }
+        );
 
-    if (res.ok) {
-        dot.classList.add("on");
-        text.textContent = "연결됨";
-    } else {
-        dot.classList.remove("on");
-        text.textContent = "연결 실패";
-    }
-} catch (e) {
-    console.error(e);
-    dot.classList.remove("on");
-    text.textContent = "연결 실패";
-}
-    function autoGrow(el) {
-      el.style.height = 'auto';
-      el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-    }
-
-    function updateSendBtn() {
-      const input = document.getElementById('input');
-      const btn = document.getElementById('sendBtn');
-      btn.disabled = !input.value.trim() || isSending;
-    }
-
-    function handleKey(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    }
-
-    function useChip(el) {
-      const text = el.querySelector('span') ? el.querySelector('span').textContent : el.textContent;
-      document.getElementById('input').value = text;
-      updateSendBtn();
-      sendMessage();
-    }
-
-    function appendMessage(role, text) {
-      const chat = document.getElementById('chatArea');
-      const div = document.createElement('div');
-      div.className = 'msg ' + role;
-      div.textContent = text;
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-      return div;
-    }
-
-    function appendTyping() {
-      const chat = document.getElementById('chatArea');
-      const div = document.createElement('div');
-      div.className = 'msg typing';
-      div.id = 'typingIndicator';
-      div.innerHTML = '<span></span><span></span><span></span>';
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function removeTyping() {
-      const el = document.getElementById('typingIndicator');
-      if (el) el.remove();
-    }
-
-    async function sendMessage() {
-      const input = document.getElementById('input');
-      const text = input.value.trim();
-      if (!text || isSending) return;
-
-      if (!API_URL) {
-        document.getElementById('settingsPanel').classList.add('open');
-        return;
-      }
-
-      const chips = document.getElementById('chips');
-      if (chips) chips.remove();
-
-      appendMessage('user', text);
-      input.value = "";
-      input.style.height = 'auto';
-      isSending = true;
-      document.getElementById('sendBtn').disabled = true;
-      appendTyping();
-
-      try {
-        const res = await fetch(API_URL, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "ngrok-skip-browser-warning": "1"
-  },
-  body: JSON.stringify({
-    message: text,
-    history: history
-  })
-});;
-        removeTyping();
-        if (!res.ok) {
-          appendMessage('error', '서버에서 오류가 발생했어요. 부스 담당자에게 알려주세요.');
+        if (res.ok) {
+          dot.classList.add("on");
+          text.textContent = "연결됨";
         } else {
-          const data = await res.json();
-          const reply = data.response || '(응답이 비어있습니다)';
-          appendMessage('bot', reply);
-          history.push({ role: "user", content: [{ type: "text", text: text }] });
-          history.push({ role: "assistant", content: [{ type: "text", text: reply }] });
-          if (history.length > 20) history = history.slice(-8);
+          dot.classList.remove("on");
+          text.textContent = "연결 실패";
         }
       } catch (e) {
-        removeTyping();
-        appendMessage('error', '서버에 연결할 수 없어요. Wi-Fi 또는 서버 상태를 확인해주세요.');
-      } finally {
-        isSending = false;
+        console.error(e);
+        dot.classList.remove("on");
+        text.textContent = "연결 실패";
+      }
+      function autoGrow(el) {
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+      }
+
+      function updateSendBtn() {
+        const input = document.getElementById('input');
+        const btn = document.getElementById('sendBtn');
+        btn.disabled = !input.value.trim() || isSending;
+      }
+
+      function handleKey(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      }
+
+      function useChip(el) {
+        const text = el.querySelector('span') ? el.querySelector('span').textContent : el.textContent;
+        document.getElementById('input').value = text;
         updateSendBtn();
-      }
-    }
-
-    checkConnection();
-
-    (function initHeaderBehavior() {
-      const chat = document.getElementById('chatArea');
-      const headerWrap = document.getElementById('headerWrap');
-      let lastScrollTop = 0;
-      let ticking = false;
-      let dragging = false;
-      let startY = 0;
-      let currentY = 0;
-      const HIDE_RATIO = 0.82;
-
-      function getHideDistance() {
-        return headerWrap.offsetHeight + 64;
+        sendMessage();
       }
 
-      function updateHeader(scrollTop) {
-        const delta = scrollTop - lastScrollTop;
+      function appendMessage(role, text) {
+        const chat = document.getElementById('chatArea');
+        const div = document.createElement('div');
+        div.className = 'msg ' + role;
+        div.textContent = text;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+        return div;
+      }
 
-        if (scrollTop <= 10) {
-          headerWrap.classList.remove('is-compact', 'is-hidden');
-        } else if (delta > 3) {
-          headerWrap.classList.remove('is-hidden');
-          headerWrap.classList.add('is-compact');
+      function appendTyping() {
+        const chat = document.getElementById('chatArea');
+        const div = document.createElement('div');
+        div.className = 'msg typing';
+        div.id = 'typingIndicator';
+        div.innerHTML = '<span></span><span></span><span></span>';
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      function removeTyping() {
+        const el = document.getElementById('typingIndicator');
+        if (el) el.remove();
+      }
+
+      async function sendMessage() {
+        const input = document.getElementById('input');
+        const text = input.value.trim();
+        if (!text || isSending) return;
+
+        if (!API_URL) {
+          document.getElementById('settingsPanel').classList.add('open');
+          return;
         }
 
-        lastScrollTop = scrollTop;
+        const chips = document.getElementById('chips');
+        if (chips) chips.remove();
+
+        appendMessage('user', text);
+        input.value = "";
+        input.style.height = 'auto';
+        isSending = true;
+        document.getElementById('sendBtn').disabled = true;
+        appendTyping();
+
+        try {
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "1"
+            },
+            body: JSON.stringify({
+              message: text,
+              history: history
+            })
+          });;
+          removeTyping();
+          if (!res.ok) {
+            appendMessage('error', '서버에서 오류가 발생했어요. 부스 담당자에게 알려주세요.');
+          } else {
+            const data = await res.json();
+            const reply = data.response || '(응답이 비어있습니다)';
+            appendMessage('bot', reply);
+            history.push({ role: "user", content: [{ type: "text", text: text }] });
+            history.push({ role: "assistant", content: [{ type: "text", text: reply }] });
+            if (history.length > 20) history = history.slice(-8);
+          }
+        } catch (e) {
+          removeTyping();
+          appendMessage('error', '서버에 연결할 수 없어요. Wi-Fi 또는 서버 상태를 확인해주세요.');
+        } finally {
+          isSending = false;
+          updateSendBtn();
+        }
       }
 
-      chat.addEventListener('scroll', () => {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(() => {
-          updateHeader(chat.scrollTop);
-          ticking = false;
-        });
-      }, { passive: true });
+      checkConnection();
 
-      function onPointerDown(e) {
-        if (headerWrap.classList.contains('is-hidden')) return;
-        dragging = true;
-        startY = e.clientY;
-        currentY = 0;
-        headerWrap.classList.add('is-dragging');
-        headerWrap.setPointerCapture(e.pointerId);
-      }
+      (function initHeaderBehavior() {
+        const chat = document.getElementById('chatArea');
+        const headerWrap = document.getElementById('headerWrap');
+        let lastScrollTop = 0;
+        let ticking = false;
+        let dragging = false;
+        let startY = 0;
+        let currentY = 0;
+        const HIDE_RATIO = 0.82;
 
-      function onPointerMove(e) {
-        if (!dragging) return;
-        const dy = e.clientY - startY;
-        if (dy > 6) return;
-        currentY = Math.min(0, dy);
-        const hideDistance = getHideDistance();
-        headerWrap.style.transform = `translateY(${currentY}px)`;
-        headerWrap.style.opacity = String(Math.max(0, 1 + currentY / hideDistance));
-      }
-
-      function onPointerUp(e) {
-        if (!dragging) return;
-        dragging = false;
-        headerWrap.classList.remove('is-dragging');
-        headerWrap.releasePointerCapture(e.pointerId);
-
-        const hideDistance = getHideDistance();
-        if (-currentY >= hideDistance * HIDE_RATIO) {
-          headerWrap.classList.add('is-hidden');
+        function getHideDistance() {
+          return headerWrap.offsetHeight + 64;
         }
 
-        headerWrap.style.transform = '';
-        headerWrap.style.opacity = '';
-        currentY = 0;
-      }
+        function updateHeader(scrollTop) {
+          const delta = scrollTop - lastScrollTop;
 
-      headerWrap.addEventListener('pointerdown', onPointerDown);
-      headerWrap.addEventListener('pointermove', onPointerMove);
-      headerWrap.addEventListener('pointerup', onPointerUp);
-      headerWrap.addEventListener('pointercancel', onPointerUp);
-    })();
+          if (scrollTop <= 10) {
+            headerWrap.classList.remove('is-compact', 'is-hidden');
+          } else if (delta > 3) {
+            headerWrap.classList.remove('is-hidden');
+            headerWrap.classList.add('is-compact');
+          }
+
+          lastScrollTop = scrollTop;
+        }
+
+        chat.addEventListener('scroll', () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => {
+            updateHeader(chat.scrollTop);
+            ticking = false;
+          });
+        }, { passive: true });
+
+        function onPointerDown(e) {
+          if (headerWrap.classList.contains('is-hidden')) return;
+          dragging = true;
+          startY = e.clientY;
+          currentY = 0;
+          headerWrap.classList.add('is-dragging');
+          headerWrap.setPointerCapture(e.pointerId);
+        }
+
+        function onPointerMove(e) {
+          if (!dragging) return;
+          const dy = e.clientY - startY;
+          if (dy > 6) return;
+          currentY = Math.min(0, dy);
+          const hideDistance = getHideDistance();
+          headerWrap.style.transform = `translateY(${currentY}px)`;
+          headerWrap.style.opacity = String(Math.max(0, 1 + currentY / hideDistance));
+        }
+
+        function onPointerUp(e) {
+          if (!dragging) return;
+          dragging = false;
+          headerWrap.classList.remove('is-dragging');
+          headerWrap.releasePointerCapture(e.pointerId);
+
+          const hideDistance = getHideDistance();
+          if (-currentY >= hideDistance * HIDE_RATIO) {
+            headerWrap.classList.add('is-hidden');
+          }
+
+          headerWrap.style.transform = '';
+          headerWrap.style.opacity = '';
+          currentY = 0;
+        }
+
+        headerWrap.addEventListener('pointerdown', onPointerDown);
+        headerWrap.addEventListener('pointermove', onPointerMove);
+        headerWrap.addEventListener('pointerup', onPointerUp);
+        headerWrap.addEventListener('pointercancel', onPointerUp);
+      })();
   </script>
 </body>
 
