@@ -1090,25 +1090,30 @@
 
       text.textContent = "확인 중...";
 
-      try {
-        const res = await fetch(
-          "https://aware-jot-salvation.ngrok-free.dev/health"
-        );
-
-        if (res.ok) {
-          dot.classList.add("on");
-          text.textContent = "연결됨";
-        } else {
-          dot.classList.remove("on");
-          text.textContent = "연결 실패";
+    try {
+    const res = await fetch(
+        "https://aware-jot-salvation.ngrok-free.dev/health",
+        {
+            method: "GET",
+            headers: {
+                "ngrok-skip-browser-warning": "1"
+            }
         }
+    );
 
-      } catch (e) {
+    if (res.ok) {
+        dot.classList.add("on");
+        text.textContent = "연결됨";
+    } else {
         dot.classList.remove("on");
         text.textContent = "연결 실패";
-      }
     }
 
+} catch (e) {
+    console.error(e);
+    dot.classList.remove("on");
+    text.textContent = "연결 실패";
+}
     function autoGrow(el) {
       el.style.height = 'auto';
       el.style.height = Math.min(el.scrollHeight, 100) + 'px';
@@ -1181,10 +1186,16 @@
 
       try {
         const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, history: history })
-        });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "1"
+  },
+  body: JSON.stringify({
+    message: text,
+    history: history
+  })
+});;
         removeTyping();
         if (!res.ok) {
           appendMessage('error', '서버에서 오류가 발생했어요. 부스 담당자에게 알려주세요.');
