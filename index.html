@@ -1087,7 +1087,6 @@
     async function checkConnection() {
       const dot = document.getElementById('statusDot');
       const text = document.getElementById('statusText');
-
       text.textContent = "확인 중...";
 
     try {
@@ -1108,7 +1107,6 @@
         dot.classList.remove("on");
         text.textContent = "연결 실패";
     }
-
 } catch (e) {
     console.error(e);
     dot.classList.remove("on");
