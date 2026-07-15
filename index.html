@@ -1,1133 +1,1289 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#E8F0FF" media="(prefers-color-scheme: light)">
-<title>KORIMA AI</title>
-<style>
-  :root {
-    --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --spring-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
-    --glass-bg: rgba(255, 255, 255, 0.42);
-    --glass-bg-2: rgba(255, 255, 255, 0.28);
-    --glass-border: rgba(255, 255, 255, 0.72);
-    --glass-highlight: rgba(255, 255, 255, 0.55);
-    --text-primary: #0f172a;
-    --text-secondary: rgba(15, 23, 42, 0.62);
-    --text-tertiary: rgba(15, 23, 42, 0.42);
-    --bubble-user: #007AFF;
-    --bubble-user-text: #fff;
-    --bubble-bot: rgba(233, 233, 235, 0.85);
-    --bubble-bot-text: #0f172a;
-    --accent: #007AFF;
-    --good: #34C759;
-    --coral: #FF3B30;
-    --amber: #FF9500;
-    --blur: 40px;
-    --blur-sm: 24px;
-    --radius-xl: 28px;
-    --radius-lg: 22px;
-    --radius-md: 18px;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --header-offset: calc(88px + var(--safe-top));
-    --island-h: 36px;
-  }
-
-  @media (prefers-color-scheme: dark) {
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#E8F0FF" media="(prefers-color-scheme: light)">
+  <title>KORIMA AI</title>
+  <style>
     :root {
-      --glass-bg: rgba(30, 30, 32, 0.55);
-      --glass-bg-2: rgba(44, 44, 46, 0.45);
-      --glass-border: rgba(255, 255, 255, 0.14);
-      --glass-highlight: rgba(255, 255, 255, 0.08);
-      --text-primary: #f5f5f7;
-      --text-secondary: rgba(245, 245, 247, 0.68);
-      --text-tertiary: rgba(245, 245, 247, 0.42);
-      --bubble-bot: rgba(58, 58, 60, 0.88);
-      --bubble-bot-text: #f5f5f7;
-      --accent: #0A84FF;
-      --bubble-user: #0A84FF;
+      --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --spring-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
+      --glass-bg: rgba(255, 255, 255, 0.42);
+      --glass-bg-2: rgba(255, 255, 255, 0.28);
+      --glass-border: rgba(255, 255, 255, 0.72);
+      --glass-highlight: rgba(255, 255, 255, 0.55);
+      --text-primary: #0f172a;
+      --text-secondary: rgba(15, 23, 42, 0.62);
+      --text-tertiary: rgba(15, 23, 42, 0.42);
+      --bubble-user: #007AFF;
+      --bubble-user-text: #fff;
+      --bubble-bot: rgba(233, 233, 235, 0.85);
+      --bubble-bot-text: #0f172a;
+      --accent: #007AFF;
+      --good: #34C759;
+      --coral: #FF3B30;
+      --amber: #FF9500;
+      --blur: 40px;
+      --blur-sm: 24px;
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --header-offset: calc(88px + var(--safe-top));
+      --island-h: 36px;
     }
-  }
 
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --glass-bg: rgba(30, 30, 32, 0.55);
+        --glass-bg-2: rgba(44, 44, 46, 0.45);
+        --glass-border: rgba(255, 255, 255, 0.14);
+        --glass-highlight: rgba(255, 255, 255, 0.08);
+        --text-primary: #f5f5f7;
+        --text-secondary: rgba(245, 245, 247, 0.68);
+        --text-tertiary: rgba(245, 245, 247, 0.42);
+        --bubble-bot: rgba(58, 58, 60, 0.88);
+        --bubble-bot-text: #f5f5f7;
+        --accent: #0A84FF;
+        --bubble-user: #0A84FF;
+      }
+    }
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-  }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
-      'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-    color: var(--text-primary);
-    background: #c8daf5;
-    position: relative;
-    overscroll-behavior: none;
-    -webkit-font-smoothing: antialiased;
-  }
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
 
-  @media (prefers-color-scheme: dark) {
-    body { background: #0a0a0c; }
-  }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+        'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      color: var(--text-primary);
+      background: #c8daf5;
+      position: relative;
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
+    }
 
-  /* ── Animated Background Blobs ── */
-  .bg-layer {
-    position: fixed;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 0;
-  }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0a0a0c;
+      }
+    }
 
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(70px);
-    will-change: transform;
-  }
+    /* ── Animated Background Blobs ── */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-  .blob-1 {
-    width: 420px; height: 420px;
-    background: rgba(100, 180, 255, 0.45);
-    top: -120px; left: -100px;
-    animation: blobDrift1 14s ease-in-out infinite;
-  }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      will-change: transform;
+    }
 
-  .blob-2 {
-    width: 360px; height: 360px;
-    background: rgba(180, 130, 255, 0.35);
-    top: 30%; right: -120px;
-    animation: blobDrift2 18s ease-in-out infinite;
-  }
+    .blob-1 {
+      width: 420px;
+      height: 420px;
+      background: rgba(100, 180, 255, 0.45);
+      top: -120px;
+      left: -100px;
+      animation: blobDrift1 14s ease-in-out infinite;
+    }
 
-  .blob-3 {
-    width: 480px; height: 480px;
-    background: rgba(255, 140, 180, 0.28);
-    bottom: -160px; left: 10%;
-    animation: blobDrift3 16s ease-in-out infinite;
-  }
+    .blob-2 {
+      width: 360px;
+      height: 360px;
+      background: rgba(180, 130, 255, 0.35);
+      top: 30%;
+      right: -120px;
+      animation: blobDrift2 18s ease-in-out infinite;
+    }
 
-  .blob-4 {
-    width: 280px; height: 280px;
-    background: rgba(80, 220, 180, 0.25);
-    bottom: 20%; right: 15%;
-    animation: blobDrift4 12s ease-in-out infinite;
-  }
+    .blob-3 {
+      width: 480px;
+      height: 480px;
+      background: rgba(255, 140, 180, 0.28);
+      bottom: -160px;
+      left: 10%;
+      animation: blobDrift3 16s ease-in-out infinite;
+    }
 
-  @media (prefers-color-scheme: dark) {
-    .blob-1 { background: rgba(10, 132, 255, 0.22); }
-    .blob-2 { background: rgba(175, 82, 222, 0.18); }
-    .blob-3 { background: rgba(255, 55, 95, 0.14); }
-    .blob-4 { background: rgba(48, 209, 88, 0.12); }
-  }
+    .blob-4 {
+      width: 280px;
+      height: 280px;
+      background: rgba(80, 220, 180, 0.25);
+      bottom: 20%;
+      right: 15%;
+      animation: blobDrift4 12s ease-in-out infinite;
+    }
 
-  @keyframes blobDrift1 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(90px, 70px) scale(1.12); }
-    66% { transform: translate(40px, 120px) scale(0.95); }
-  }
-  @keyframes blobDrift2 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-80px, 100px) scale(1.18); }
-  }
-  @keyframes blobDrift3 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    40% { transform: translate(60px, -80px) scale(1.1); }
-    80% { transform: translate(-40px, -30px) scale(0.92); }
-  }
-  @keyframes blobDrift4 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-50px, -60px) scale(1.15); }
-  }
+    @media (prefers-color-scheme: dark) {
+      .blob-1 {
+        background: rgba(10, 132, 255, 0.22);
+      }
 
-  /* ── App Shell ── */
-  .app {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 520px;
-    height: 100dvh;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+      .blob-2 {
+        background: rgba(175, 82, 222, 0.18);
+      }
 
-  /* ── Dynamic Island (Connection Status) ── */
-  .dynamic-island-wrap {
-    position: fixed;
-    top: calc(10px + var(--safe-top));
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    width: 100%;
-    max-width: 520px;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
-  }
+      .blob-3 {
+        background: rgba(255, 55, 95, 0.14);
+      }
 
-  .dynamic-island {
-    pointer-events: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: var(--island-h);
-    padding: 0 16px;
-    border-radius: 100px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.5s var(--spring), box-shadow 0.4s var(--spring-soft),
-                padding 0.45s var(--spring), gap 0.4s var(--spring-soft);
-    animation: islandEnter 0.7s var(--spring) both;
-  }
+      .blob-4 {
+        background: rgba(48, 209, 88, 0.12);
+      }
+    }
 
-  .dynamic-island:active {
-    transform: scale(0.96);
-    transition-duration: 0.15s;
-  }
+    @keyframes blobDrift1 {
 
-  /* Multi-layer glass */
-  .dynamic-island .glass-layer {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-  }
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
 
-  .dynamic-island .glass-base {
-    background: rgba(0, 0, 0, 0.72);
-    backdrop-filter: blur(30px) saturate(180%);
-    -webkit-backdrop-filter: blur(30px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  }
+      33% {
+        transform: translate(90px, 70px) scale(1.12);
+      }
 
-  @media (prefers-color-scheme: light) {
+      66% {
+        transform: translate(40px, 120px) scale(0.95);
+      }
+    }
+
+    @keyframes blobDrift2 {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(-80px, 100px) scale(1.18);
+      }
+    }
+
+    @keyframes blobDrift3 {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      40% {
+        transform: translate(60px, -80px) scale(1.1);
+      }
+
+      80% {
+        transform: translate(-40px, -30px) scale(0.92);
+      }
+    }
+
+    @keyframes blobDrift4 {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(-50px, -60px) scale(1.15);
+      }
+    }
+
+    /* ── App Shell ── */
+    .app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 520px;
+      height: 100dvh;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Dynamic Island (Connection Status) ── */
+    .dynamic-island-wrap {
+      position: fixed;
+      top: calc(10px + var(--safe-top));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .dynamic-island {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: var(--island-h);
+      padding: 0 16px;
+      border-radius: 100px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.5s var(--spring), box-shadow 0.4s var(--spring-soft),
+        padding 0.45s var(--spring), gap 0.4s var(--spring-soft);
+      animation: islandEnter 0.7s var(--spring) both;
+    }
+
+    .dynamic-island:active {
+      transform: scale(0.96);
+      transition-duration: 0.15s;
+    }
+
+    /* Multi-layer glass */
+    .dynamic-island .glass-layer {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
     .dynamic-island .glass-base {
-      background: rgba(20, 20, 22, 0.82);
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
     }
-  }
 
-  .dynamic-island .glass-shine {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.18) 0%,
-      rgba(255, 255, 255, 0.04) 40%,
-      transparent 100%
-    );
-  }
+    @media (prefers-color-scheme: light) {
+      .dynamic-island .glass-base {
+        background: rgba(20, 20, 22, 0.82);
+      }
+    }
 
-  .dynamic-island .island-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #fff;
-    font-size: 12.5px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-  }
+    .dynamic-island .glass-shine {
+      background: linear-gradient(180deg,
+          rgba(255, 255, 255, 0.18) 0%,
+          rgba(255, 255, 255, 0.04) 40%,
+          transparent 100%);
+    }
 
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--coral);
-    flex-shrink: 0;
-    transition: background 0.4s var(--spring), box-shadow 0.4s var(--spring);
-  }
+    .dynamic-island .island-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
 
-  .dot.on {
-    background: var(--good);
-    box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3);
-    animation: dotPulse 2s ease-in-out infinite;
-  }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--coral);
+      flex-shrink: 0;
+      transition: background 0.4s var(--spring), box-shadow 0.4s var(--spring);
+    }
 
-  @keyframes dotPulse {
-    0%, 100% { box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3); }
-    50% { box-shadow: 0 0 0 5px rgba(52, 199, 89, 0.15); }
-  }
+    .dot.on {
+      background: var(--good);
+      box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3);
+      animation: dotPulse 2s ease-in-out infinite;
+    }
 
-  @keyframes islandEnter {
-    from { opacity: 0; transform: translateY(-12px) scale(0.85); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
+    @keyframes dotPulse {
 
-  /* ── Floating Header (iOS 26 style) ── */
-  .header-wrap {
-    position: fixed;
-    top: calc(54px + var(--safe-top));
-    left: 0;
-    right: 0;
-    margin-inline: auto;
-    z-index: 90;
-    width: calc(100% - 32px);
-    max-width: 488px;
-    animation: headerFloat 0.8s var(--spring) 0.1s both;
-    transition:
-      transform 0.45s var(--spring-soft),
-      opacity 0.35s ease;
-    will-change: transform, opacity;
-    touch-action: pan-x;
-    cursor: grab;
-    user-select: none;
-    -webkit-user-select: none;
-  }
+      0%,
+      100% {
+        box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3);
+      }
 
-  .header-wrap.is-dragging {
-    transition: none;
-    cursor: grabbing;
-  }
+      50% {
+        box-shadow: 0 0 0 5px rgba(52, 199, 89, 0.15);
+      }
+    }
 
-  .header-wrap.is-hidden {
-    transform: translateY(calc(-100% - 64px));
-    opacity: 0;
-    pointer-events: none;
-  }
+    @keyframes islandEnter {
+      from {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.85);
+      }
 
-  header {
-    position: relative;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    padding: 18px 20px 16px;
-    transition: padding 0.4s var(--spring-soft);
-  }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
 
-  .header-wrap.is-compact:not(.is-hidden) header {
-    height: 44px;
-    padding: 0 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    /* ── Floating Header (iOS 26 style) ── */
+    .header-wrap {
+      position: fixed;
+      top: calc(54px + var(--safe-top));
+      left: 0;
+      right: 0;
+      margin-inline: auto;
+      z-index: 90;
+      width: calc(100% - 32px);
+      max-width: 488px;
+      animation: headerFloat 0.8s var(--spring) 0.1s both;
+      transition:
+        transform 0.45s var(--spring-soft),
+        opacity 0.35s ease;
+      will-change: transform, opacity;
+      touch-action: pan-x;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
-  .header-wrap.is-compact:not(.is-hidden) .header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-  }
+    .header-wrap.is-dragging {
+      transition: none;
+      cursor: grabbing;
+    }
 
-  .header-wrap.is-compact:not(.is-hidden) .brand {
-    width: 100%;
-    justify-content: center;
-  }
+    .header-wrap.is-hidden {
+      transform: translateY(calc(-100% - 64px));
+      opacity: 0;
+      pointer-events: none;
+    }
 
-  header .glass-layer {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-  }
+    header {
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      padding: 18px 20px 16px;
+      transition: padding 0.4s var(--spring-soft);
+    }
 
-  header .glass-base {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--blur)) saturate(200%);
-    -webkit-backdrop-filter: blur(var(--blur)) saturate(200%);
-    border: 1px solid var(--glass-border);
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.08),
-      0 2px 8px rgba(0, 0, 0, 0.04),
-      inset 0 1.5px 0 var(--glass-highlight),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.04);
-  }
+    .header-wrap.is-compact:not(.is-hidden) header {
+      height: 44px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  header .glass-shine {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.5) 0%,
-      rgba(255, 255, 255, 0.1) 30%,
-      transparent 60%
-    );
-  }
+    .header-wrap.is-compact:not(.is-hidden) .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
 
-  header .glass-edge {
-    background: linear-gradient(
-      180deg,
-      transparent 85%,
-      rgba(255, 255, 255, 0.15) 100%
-    );
-  }
+    .header-wrap.is-compact:not(.is-hidden) .brand {
+      width: 100%;
+      justify-content: center;
+    }
 
-  .header-inner {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-  }
+    header .glass-layer {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+    }
 
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    font-size: 10.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: var(--text-tertiary);
-    margin-bottom: 8px;
-    max-height: 24px;
-    opacity: 1;
-    overflow: hidden;
-    transition:
-      max-height 0.35s var(--spring-soft),
-      opacity 0.3s ease,
-      margin 0.35s var(--spring-soft);
-  }
+    header .glass-base {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur)) saturate(200%);
+      -webkit-backdrop-filter: blur(var(--blur)) saturate(200%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.04),
+        inset 0 1.5px 0 var(--glass-highlight),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+    }
 
-  .header-wrap.is-compact:not(.is-hidden) .eyebrow {
-    max-height: 0;
-    opacity: 0;
-    margin-bottom: 0;
-  }
+    header .glass-shine {
+      background: linear-gradient(135deg,
+          rgba(255, 255, 255, 0.5) 0%,
+          rgba(255, 255, 255, 0.1) 30%,
+          transparent 60%);
+    }
 
-  .eyebrow::before {
-    content: "";
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--amber);
-    box-shadow: 0 0 6px rgba(255, 149, 0, 0.5);
-  }
+    header .glass-edge {
+      background: linear-gradient(180deg,
+          transparent 85%,
+          rgba(255, 255, 255, 0.15) 100%);
+    }
 
-  .brand {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-  }
+    .header-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
 
-  .brand h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: var(--text-primary);
-    transition: font-size 0.35s var(--spring-soft);
-  }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+      max-height: 24px;
+      opacity: 1;
+      overflow: hidden;
+      transition:
+        max-height 0.35s var(--spring-soft),
+        opacity 0.3s ease,
+        margin 0.35s var(--spring-soft);
+    }
 
-  .header-wrap.is-compact:not(.is-hidden) .brand h1 {
-    font-size: 17px;
-    line-height: 1;
-  }
+    .header-wrap.is-compact:not(.is-hidden) .eyebrow {
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: 0;
+    }
 
-  .brand h1 span { color: var(--accent); }
+    .eyebrow::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 6px rgba(255, 149, 0, 0.5);
+    }
 
-  .sub {
-    margin: 8px 0 0;
-    font-size: 12.5px;
-    color: var(--text-secondary);
-    line-height: 1.55;
-    font-weight: 400;
-    max-height: 80px;
-    opacity: 1;
-    overflow: hidden;
-    transition:
-      max-height 0.35s var(--spring-soft),
-      opacity 0.3s ease,
-      margin 0.35s var(--spring-soft);
-  }
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
 
-  .header-wrap.is-compact:not(.is-hidden) .sub {
-    max-height: 0;
-    opacity: 0;
-    margin-top: 0;
-  }
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      transition: font-size 0.35s var(--spring-soft);
+    }
 
-  @keyframes headerFloat {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+    .header-wrap.is-compact:not(.is-hidden) .brand h1 {
+      font-size: 17px;
+      line-height: 1;
+    }
 
-  /* ── Settings Panel ── */
-  .settings {
-    display: none;
-    position: fixed;
-    top: calc(var(--header-offset) + 100px);
-    left: 50%;
-    transform: translateX(-50%) translateY(-8px);
-    z-index: 85;
-    width: calc(100% - 32px);
-    max-width: 488px;
-    border-radius: var(--radius-lg);
-    padding: 16px 18px;
-    font-size: 13px;
-    opacity: 0;
-    transition: opacity 0.35s var(--spring-soft), transform 0.4s var(--spring);
-    overflow: hidden;
-  }
+    .brand h1 span {
+      color: var(--accent);
+    }
 
-  .settings.open {
-    display: block;
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-    animation: settingsPop 0.45s var(--spring);
-  }
+    .sub {
+      margin: 8px 0 0;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      font-weight: 400;
+      max-height: 80px;
+      opacity: 1;
+      overflow: hidden;
+      transition:
+        max-height 0.35s var(--spring-soft),
+        opacity 0.3s ease,
+        margin 0.35s var(--spring-soft);
+    }
 
-  .settings .glass-base {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--glass-bg-2);
-    backdrop-filter: blur(var(--blur-sm)) saturate(180%);
-    -webkit-backdrop-filter: blur(var(--blur-sm)) saturate(180%);
-    border: 1px solid var(--glass-border);
-    box-shadow:
-      0 16px 48px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 var(--glass-highlight);
-    pointer-events: none;
-  }
+    .header-wrap.is-compact:not(.is-hidden) .sub {
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+    }
 
-  .settings-inner { position: relative; z-index: 1; }
+    @keyframes headerFloat {
+      from {
+        opacity: 0;
+      }
 
-  .settings label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: var(--text-primary);
-    font-size: 12.5px;
-  }
+      to {
+        opacity: 1;
+      }
+    }
 
-  .settings input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    font-size: 13px;
-    font-family: inherit;
-    background: rgba(255, 255, 255, 0.35);
-    color: var(--text-primary);
-    outline: none;
-    transition: border-color 0.3s var(--spring-soft), box-shadow 0.3s var(--spring-soft);
-  }
+    /* ── Settings Panel ── */
+    .settings {
+      display: none;
+      position: fixed;
+      top: calc(var(--header-offset) + 100px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      z-index: 85;
+      width: calc(100% - 32px);
+      max-width: 488px;
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.35s var(--spring-soft), transform 0.4s var(--spring);
+      overflow: hidden;
+    }
 
-  @media (prefers-color-scheme: dark) {
-    .settings input { background: rgba(0, 0, 0, 0.25); }
-  }
+    .settings.open {
+      display: block;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      animation: settingsPop 0.45s var(--spring);
+    }
 
-  .settings input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
-  }
+    .settings .glass-base {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: var(--glass-bg-2);
+      backdrop-filter: blur(var(--blur-sm)) saturate(180%);
+      -webkit-backdrop-filter: blur(var(--blur-sm)) saturate(180%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 var(--glass-highlight);
+      pointer-events: none;
+    }
 
-  .settings .hint {
-    color: var(--text-tertiary);
-    margin-top: 6px;
-    font-size: 11px;
-    line-height: 1.55;
-  }
+    .settings-inner {
+      position: relative;
+      z-index: 1;
+    }
 
-  .settings button {
-    margin-top: 12px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.3s var(--spring), filter 0.2s;
-  }
+    .settings label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+      font-size: 12.5px;
+    }
 
-  .settings button:active { transform: scale(0.96); }
+    .settings input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      font-size: 13px;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.35);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.3s var(--spring-soft), box-shadow 0.3s var(--spring-soft);
+    }
 
-  @keyframes settingsPop {
-    from { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.95); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-  }
+    @media (prefers-color-scheme: dark) {
+      .settings input {
+        background: rgba(0, 0, 0, 0.25);
+      }
+    }
 
-  /* ── Chat Area (Apple Messages) ── */
-  .chat {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    padding:
-      calc(var(--header-offset) + 108px)
-      16px
-      calc(90px + var(--safe-bottom))
-      16px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+    .settings input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+    }
 
-  .intro {
-    text-align: center;
-    padding: 8px 12px 12px;
-    color: var(--text-tertiary);
-    font-size: 12px;
-    line-height: 1.6;
-    animation: fadeUp 0.6s var(--spring-soft) 0.2s both;
-  }
+    .settings .hint {
+      color: var(--text-tertiary);
+      margin-top: 6px;
+      font-size: 11px;
+      line-height: 1.55;
+    }
 
-  .intro b { color: var(--text-secondary); font-weight: 600; }
+    .settings button {
+      margin-top: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.3s var(--spring), filter 0.2s;
+    }
 
-  /* Message bubbles */
-  .msg {
-    max-width: 78%;
-    padding: 9px 14px;
-    font-size: 15px;
-    line-height: 1.45;
-    white-space: pre-wrap;
-    word-break: break-word;
-    position: relative;
-    animation: msgIn 0.4s var(--spring) both;
-  }
+    .settings button:active {
+      transform: scale(0.96);
+    }
 
-  @keyframes msgIn {
-    from { opacity: 0; transform: translateY(10px) scale(0.92); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
+    @keyframes settingsPop {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-12px) scale(0.95);
+      }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+      }
+    }
 
-  .msg.bot {
-    align-self: flex-start;
-    background: var(--bubble-bot);
-    color: var(--bubble-bot-text);
-    border-radius: 18px 18px 18px 4px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-  }
+    /* ── Chat Area (Apple Messages) ── */
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding:
+        calc(var(--header-offset) + 108px) 16px calc(90px + var(--safe-bottom)) 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
-  .msg.user {
-    align-self: flex-end;
-    background: var(--bubble-user);
-    color: var(--bubble-user-text);
-    border-radius: 18px 18px 4px 18px;
-    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
-  }
+    .intro {
+      text-align: center;
+      padding: 8px 12px 12px;
+      color: var(--text-tertiary);
+      font-size: 12px;
+      line-height: 1.6;
+      animation: fadeUp 0.6s var(--spring-soft) 0.2s both;
+    }
 
-  .msg.typing {
-    align-self: flex-start;
-    background: var(--bubble-bot);
-    border: 1px solid var(--glass-border);
-    border-radius: 18px 18px 18px 4px;
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    padding: 12px 16px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
+    .intro b {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
 
-  .typing span {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--text-tertiary);
-    animation: typingBounce 1.4s infinite ease-in-out;
-  }
+    /* Message bubbles */
+    .msg {
+      max-width: 78%;
+      padding: 9px 14px;
+      font-size: 15px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      position: relative;
+      animation: msgIn 0.4s var(--spring) both;
+    }
 
-  .typing span:nth-child(2) { animation-delay: 0.18s; }
-  .typing span:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes msgIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.92);
+      }
 
-  @keyframes typingBounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-    30% { transform: translateY(-5px); opacity: 1; }
-  }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
 
-  .msg.error {
-    align-self: flex-start;
-    background: rgba(255, 59, 48, 0.12);
-    color: #FF3B30;
-    border: 1px solid rgba(255, 59, 48, 0.25);
-    border-radius: 18px 18px 18px 4px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
 
-  @media (prefers-color-scheme: dark) {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .msg.bot {
+      align-self: flex-start;
+      background: var(--bubble-bot);
+      color: var(--bubble-bot-text);
+      border-radius: 18px 18px 18px 4px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: var(--bubble-user);
+      color: var(--bubble-user-text);
+      border-radius: 18px 18px 4px 18px;
+      box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+    }
+
+    .msg.typing {
+      align-self: flex-start;
+      background: var(--bubble-bot);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px 18px 18px 4px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      padding: 12px 16px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .typing span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-tertiary);
+      animation: typingBounce 1.4s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: 0.18s;
+    }
+
+    .typing span:nth-child(3) {
+      animation-delay: 0.36s;
+    }
+
+    @keyframes typingBounce {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.4;
+      }
+
+      30% {
+        transform: translateY(-5px);
+        opacity: 1;
+      }
+    }
+
     .msg.error {
-      background: rgba(255, 69, 58, 0.18);
-      color: #FF6961;
+      align-self: flex-start;
+      background: rgba(255, 59, 48, 0.12);
+      color: #FF3B30;
+      border: 1px solid rgba(255, 59, 48, 0.25);
+      border-radius: 18px 18px 18px 4px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
-  }
 
-  /* Suggestion chips */
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 4px 2px 10px;
-    justify-content: center;
-    animation: fadeUp 0.6s var(--spring-soft) 0.35s both;
-  }
-
-  .chip {
-    position: relative;
-    overflow: hidden;
-    padding: 8px 14px;
-    border-radius: 100px;
-    font-size: 12.5px;
-    color: var(--text-primary);
-    cursor: pointer;
-    font-weight: 600;
-    transition: transform 0.35s var(--spring), box-shadow 0.3s var(--spring-soft);
-  }
-
-  .chip .glass-base {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--glass-bg-2);
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    border: 1px solid var(--glass-border);
-    box-shadow: inset 0 1px 0 var(--glass-highlight);
-    pointer-events: none;
-    transition: background 0.3s;
-  }
-
-  .chip span { position: relative; z-index: 1; }
-
-  .chip:active { transform: scale(0.95); }
-  .chip:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); }
-
-  /* ── Composer (Messages-style input with inner send) ── */
-  .composer-wrap {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 90;
-    width: 100%;
-    max-width: 520px;
-    padding: 8px 14px calc(10px + var(--safe-bottom));
-    animation: composerUp 0.7s var(--spring) 0.15s both;
-  }
-
-  .composer {
-    position: relative;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    padding: 6px 6px 6px 16px;
-    display: flex;
-    align-items: flex-end;
-    gap: 4px;
-  }
-
-  .composer .glass-base {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--blur)) saturate(200%);
-    -webkit-backdrop-filter: blur(var(--blur)) saturate(200%);
-    border: 1px solid var(--glass-border);
-    box-shadow:
-      0 -4px 24px rgba(0, 0, 0, 0.06),
-      inset 0 1.5px 0 var(--glass-highlight);
-    pointer-events: none;
-  }
-
-  .composer textarea {
-    position: relative;
-    z-index: 1;
-    flex: 1;
-    resize: none;
-    border: none;
-    background: transparent;
-    padding: 8px 0;
-    font-size: 15px;
-    font-family: inherit;
-    line-height: 1.4;
-    max-height: 100px;
-    outline: none;
-    color: var(--text-primary);
-  }
-
-  .composer textarea::placeholder { color: var(--text-tertiary); }
-
-  .send-btn {
-    position: relative;
-    z-index: 1;
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    border-radius: 50%;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-size: 15px;
-    cursor: pointer;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 2px;
-    transition: transform 0.35s var(--spring), opacity 0.3s, background 0.3s;
-    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.35);
-  }
-
-  .send-btn svg {
-    width: 16px;
-    height: 16px;
-    fill: currentColor;
-    margin-left: 1px;
-  }
-
-  .send-btn:disabled {
-    background: var(--text-tertiary);
-    opacity: 0.35;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: scale(0.92);
-  }
-
-  .send-btn:not(:disabled):active { transform: scale(0.88); }
-  .send-btn:not(:disabled):hover { transform: scale(1.06); }
-
-  .disclaimer {
-    text-align: center;
-    font-size: 10px;
-    color: var(--text-tertiary);
-    padding: 4px 16px 0;
-    position: relative;
-    z-index: 1;
-  }
-
-  @keyframes composerUp {
-    from { opacity: 0; transform: translateX(-50%) translateY(24px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-  }
-
-  /* Scrollbar */
-  .chat::-webkit-scrollbar { width: 0; }
-
-  /* Reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+    @media (prefers-color-scheme: dark) {
+      .msg.error {
+        background: rgba(255, 69, 58, 0.18);
+        color: #FF6961;
+      }
     }
-    .blob { animation: none !important; }
-  }
-</style>
+
+    /* Suggestion chips */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 4px 2px 10px;
+      justify-content: center;
+      animation: fadeUp 0.6s var(--spring-soft) 0.35s both;
+    }
+
+    .chip {
+      position: relative;
+      overflow: hidden;
+      padding: 8px 14px;
+      border-radius: 100px;
+      font-size: 12.5px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.35s var(--spring), box-shadow 0.3s var(--spring-soft);
+    }
+
+    .chip .glass-base {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: var(--glass-bg-2);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid var(--glass-border);
+      box-shadow: inset 0 1px 0 var(--glass-highlight);
+      pointer-events: none;
+      transition: background 0.3s;
+    }
+
+    .chip span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .chip:active {
+      transform: scale(0.95);
+    }
+
+    .chip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── Composer (Messages-style input with inner send) ── */
+    .composer-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 90;
+      width: 100%;
+      max-width: 520px;
+      padding: 8px 14px calc(10px + var(--safe-bottom));
+      animation: composerUp 0.7s var(--spring) 0.15s both;
+    }
+
+    .composer {
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      padding: 6px 6px 6px 16px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .composer .glass-base {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur)) saturate(200%);
+      -webkit-backdrop-filter: blur(var(--blur)) saturate(200%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 -4px 24px rgba(0, 0, 0, 0.06),
+        inset 0 1.5px 0 var(--glass-highlight);
+      pointer-events: none;
+    }
+
+    .composer textarea {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      resize: none;
+      border: none;
+      background: transparent;
+      padding: 8px 0;
+      font-size: 15px;
+      font-family: inherit;
+      line-height: 1.4;
+      max-height: 100px;
+      outline: none;
+      color: var(--text-primary);
+    }
+
+    .composer textarea::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .send-btn {
+      position: relative;
+      z-index: 1;
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+      transition: transform 0.35s var(--spring), opacity 0.3s, background 0.3s;
+      box-shadow: 0 2px 8px rgba(0, 122, 255, 0.35);
+    }
+
+    .send-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      margin-left: 1px;
+    }
+
+    .send-btn:disabled {
+      background: var(--text-tertiary);
+      opacity: 0.35;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: scale(0.92);
+    }
+
+    .send-btn:not(:disabled):active {
+      transform: scale(0.88);
+    }
+
+    .send-btn:not(:disabled):hover {
+      transform: scale(1.06);
+    }
+
+    .disclaimer {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      padding: 4px 16px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes composerUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    /* Scrollbar */
+    .chat::-webkit-scrollbar {
+      width: 0;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .blob {
+        animation: none !important;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- Animated Background -->
-<div class="bg-layer" aria-hidden="true">
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-  <div class="blob blob-4"></div>
-</div>
-
-<div class="app">
-
-  <!-- Dynamic Island: Connection Status -->
-  <div class="dynamic-island-wrap">
-    <div class="dynamic-island" id="statusPill" onclick="toggleSettings()" role="button" aria-label="연결 상태 및 설정">
-      <div class="glass-layer glass-base"></div>
-      <div class="glass-layer glass-shine"></div>
-      <div class="island-content">
-        <span class="dot" id="statusDot"></span>
-        <span id="statusText">연결 안 됨</span>
-      </div>
-    </div>
+  <!-- Animated Background -->
+  <div class="bg-layer" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
   </div>
 
-  <!-- Floating Header -->
-  <div class="header-wrap" id="headerWrap">
-    <header>
-      <div class="glass-layer glass-base"></div>
-      <div class="glass-layer glass-shine"></div>
-      <div class="glass-layer glass-edge"></div>
-      <div class="header-inner">
-        <div class="eyebrow">원주고등학교 학술 발표회 · AI 체험 부스</div>
-        <div class="brand">
-          <h1>KORIMA<span>.</span> AI</h1>
+  <div class="app">
+
+    <!-- Dynamic Island: Connection Status -->
+    <div class="dynamic-island-wrap">
+      <div class="dynamic-island" id="statusPill" onclick="toggleSettings()" role="button" aria-label="연결 상태 및 설정">
+        <div class="glass-layer glass-base"></div>
+        <div class="glass-layer glass-shine"></div>
+        <div class="island-content">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">연결 안 됨</span>
         </div>
-        <p class="sub">원주고등학교 학생이 직접 만든 AI 모델과 실시간으로 대화해보세요. 무엇이든 편하게 물어보세요!</p>
       </div>
-    </header>
-  </div>
-
-  <!-- Settings Panel -->
-  <div class="settings" id="settingsPanel">
-    <div class="glass-base"></div>
-    <div class="settings-inner">
-      <label for="apiUrl">Colab 서버 주소 (API URL)</label>
-      <input type="text" id="apiUrl" value="https://aware-jot-salvation.ngrok-free.dev/chat" readonly>
-      <div class="hint">Colab 서버 주소가 고정되어 있습니다.</div>
-      <button onclick="saveApiUrl()">연결하기</button>
     </div>
-  </div>
 
-  <!-- Chat -->
-  <div class="chat" id="chatArea">
-    <div class="intro"><b>KORIMA AI</b>는 학생들이 직접 학습시킨 AI 모델입니다. 아래 예시 질문을 눌러보거나, 궁금한 걸 자유롭게 입력해보세요.</div>
-    <div class="chips" id="chips">
-      <div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>넌 누구야?</span></div>
-      <div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>AI는 어떻게 학습하는거야?</span></div>
-      <div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>재밌는 이야기 하나 해줘</span></div>
-      <div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>오늘 날씨에 어울리는 시 써줘</span></div>
+    <!-- Floating Header -->
+    <div class="header-wrap" id="headerWrap">
+      <header>
+        <div class="glass-layer glass-base"></div>
+        <div class="glass-layer glass-shine"></div>
+        <div class="glass-layer glass-edge"></div>
+        <div class="header-inner">
+          <div class="eyebrow">원주고등학교 학술 발표회 · AI 체험 부스</div>
+          <div class="brand">
+            <h1>KORIMA<span>.</span> AI</h1>
+          </div>
+          <p class="sub">원주고등학교 학생이 직접 만든 AI 모델과 실시간으로 대화해보세요. 무엇이든 편하게 물어보세요!</p>
+        </div>
+      </header>
     </div>
-  </div>
 
-  <!-- Composer -->
-  <div class="composer-wrap">
-    <div class="composer">
+    <!-- Settings Panel -->
+    <div class="settings" id="settingsPanel">
       <div class="glass-base"></div>
-      <textarea id="input" rows="1" placeholder="iMessage" onkeydown="handleKey(event)" oninput="autoGrow(this); updateSendBtn()"></textarea>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled aria-label="전송">
-        <svg viewBox="0 0 24 24"><path d="M3.4 20.4l17.45-7.6c.81-.35.81-1.49 0-1.84L3.4 3.36c-.66-.29-1.39.2-1.39.91v15.46c0 .71.73 1.19 1.39.91z"/></svg>
-      </button>
+      <div class="settings-inner">
+        <label for="apiUrl">Colab 서버 주소 (API URL)</label>
+        <input type="text" id="apiUrl" value="https://aware-jot-salvation.ngrok-free.dev/chat" readonly>
+        <div class="hint">Colab 서버 주소가 고정되어 있습니다.</div>
+        <button onclick="saveApiUrl()">연결하기</button>
+      </div>
     </div>
-    <div class="disclaimer">KORIMA AI는 실수를 할 수 있어요. 재미로 즐겨주세요 🙂</div>
+
+    <!-- Chat -->
+    <div class="chat" id="chatArea">
+      <div class="intro"><b>KORIMA AI</b>는 학생들이 직접 학습시킨 AI 모델입니다. 아래 예시 질문을 눌러보거나, 궁금한 걸 자유롭게 입력해보세요.</div>
+      <div class="chips" id="chips">
+        <div class="chip" onclick="useChip(this)">
+          <div class="glass-base"></div><span>넌 누구야?</span>
+        </div>
+        <div class="chip" onclick="useChip(this)">
+          <div class="glass-base"></div><span>AI는 어떻게 학습하는거야?</span>
+        </div>
+        <div class="chip" onclick="useChip(this)">
+          <div class="glass-base"></div><span>재밌는 이야기 하나 해줘</span>
+        </div>
+        <div class="chip" onclick="useChip(this)">
+          <div class="glass-base"></div><span>오늘 날씨에 어울리는 시 써줘</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Composer -->
+    <div class="composer-wrap">
+      <div class="composer">
+        <div class="glass-base"></div>
+        <textarea id="input" rows="1" placeholder="iMessage" onkeydown="handleKey(event)"
+          oninput="autoGrow(this); updateSendBtn()"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled aria-label="전송">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M3.4 20.4l17.45-7.6c.81-.35.81-1.49 0-1.84L3.4 3.36c-.66-.29-1.39.2-1.39.91v15.46c0 .71.73 1.19 1.39.91z" />
+          </svg>
+        </button>
+      </div>
+      <div class="disclaimer">KORIMA AI는 실수를 할 수 있어요. 재미로 즐겨주세요 🙂</div>
+    </div>
+
   </div>
 
-</div>
+  <script>
+    const API_URL = "https://aware-jot-salvation.ngrok-free.dev/chat";
+    let history = [];
+    let isSending = false;
 
-<script>
-const API_URL = "https://aware-jot-salvation.ngrok-free.dev/chat";
-let history = [];
-let isSending = false;
-
-function toggleSettings(){
-  document.getElementById('settingsPanel').classList.toggle('open');
-}
-
-function saveApiUrl(){
-  document.getElementById('settingsPanel').classList.remove('open');
-  checkConnection();
-}
-
-async function checkConnection(){
-  const dot = document.getElementById('statusDot');
-  const text = document.getElementById('statusText');
-  if(!API_URL){
-    dot.classList.remove('on');
-    text.textContent = "연결 안 됨";
-    return;
-  }
-  text.textContent = "확인 중...";
-  try{
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({message: "ping", history: []})
-    });
-    if(res.ok){
-      dot.classList.add('on');
-      text.textContent = "연결됨";
-    } else {
-      dot.classList.remove('on');
-      text.textContent = "연결 실패";
-    }
-  } catch(e){
-    dot.classList.remove('on');
-    text.textContent = "연결 실패";
-  }
-}
-
-function autoGrow(el){
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-}
-
-function updateSendBtn(){
-  const input = document.getElementById('input');
-  const btn = document.getElementById('sendBtn');
-  btn.disabled = !input.value.trim() || isSending;
-}
-
-function handleKey(e){
-  if(e.key === 'Enter' && !e.shiftKey){
-    e.preventDefault();
-    sendMessage();
-  }
-}
-
-function useChip(el){
-  const text = el.querySelector('span') ? el.querySelector('span').textContent : el.textContent;
-  document.getElementById('input').value = text;
-  updateSendBtn();
-  sendMessage();
-}
-
-function appendMessage(role, text){
-  const chat = document.getElementById('chatArea');
-  const div = document.createElement('div');
-  div.className = 'msg ' + role;
-  div.textContent = text;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-  return div;
-}
-
-function appendTyping(){
-  const chat = document.getElementById('chatArea');
-  const div = document.createElement('div');
-  div.className = 'msg typing';
-  div.id = 'typingIndicator';
-  div.innerHTML = '<span></span><span></span><span></span>';
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-function removeTyping(){
-  const el = document.getElementById('typingIndicator');
-  if(el) el.remove();
-}
-
-async function sendMessage(){
-  const input = document.getElementById('input');
-  const text = input.value.trim();
-  if(!text || isSending) return;
-
-  if(!API_URL){
-    document.getElementById('settingsPanel').classList.add('open');
-    return;
-  }
-
-  const chips = document.getElementById('chips');
-  if(chips) chips.remove();
-
-  appendMessage('user', text);
-  input.value = "";
-  input.style.height = 'auto';
-  isSending = true;
-  document.getElementById('sendBtn').disabled = true;
-  appendTyping();
-
-  try{
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({message: text, history: history})
-    });
-    removeTyping();
-    if(!res.ok){
-      appendMessage('error', '서버에서 오류가 발생했어요. 부스 담당자에게 알려주세요.');
-    } else {
-      const data = await res.json();
-      const reply = data.response || '(응답이 비어있습니다)';
-      appendMessage('bot', reply);
-      history.push({role:"user", content:[{type:"text", text:text}]});
-      history.push({role:"assistant", content:[{type:"text", text:reply}]});
-      if(history.length > 20) history = history.slice(-20);
-    }
-  } catch(e){
-    removeTyping();
-    appendMessage('error', '서버에 연결할 수 없어요. Wi-Fi 또는 서버 상태를 확인해주세요.');
-  } finally {
-    isSending = false;
-    updateSendBtn();
-  }
-}
-
-checkConnection();
-
-(function initHeaderBehavior(){
-  const chat = document.getElementById('chatArea');
-  const headerWrap = document.getElementById('headerWrap');
-  let lastScrollTop = 0;
-  let ticking = false;
-  let dragging = false;
-  let startY = 0;
-  let currentY = 0;
-  const HIDE_RATIO = 0.82;
-
-  function getHideDistance(){
-    return headerWrap.offsetHeight + 64;
-  }
-
-  function updateHeader(scrollTop){
-    const delta = scrollTop - lastScrollTop;
-
-    if(scrollTop <= 10){
-      headerWrap.classList.remove('is-compact', 'is-hidden');
-    } else if(delta > 3){
-      headerWrap.classList.remove('is-hidden');
-      headerWrap.classList.add('is-compact');
+    function toggleSettings() {
+      document.getElementById('settingsPanel').classList.toggle('open');
     }
 
-    lastScrollTop = scrollTop;
-  }
-  window.addEventListener("load", async () => {
+    function saveApiUrl() {
+      document.getElementById('settingsPanel').classList.remove('open');
+      checkConnection();
+    }
+
+    async function checkConnection() {
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+
+      text.textContent = "확인 중...";
+
       try {
-          await fetch("https://aware-jot-salvation.ngrok-free.dev/health", {
-              headers: {
-                  "ngrok-skip-browser-warning": "1"
-              }
-          });
+        const res = await fetch(
+          "https://aware-jot-salvation.ngrok-free.dev/health"
+        );
+
+        if (res.ok) {
+          dot.classList.add("on");
+          text.textContent = "연결됨";
+        } else {
+          dot.classList.remove("on");
+          text.textContent = "연결 실패";
+        }
+
       } catch (e) {
-          console.log("Warm-up failed");
+        dot.classList.remove("on");
+        text.textContent = "연결 실패";
       }
-  });
-  chat.addEventListener('scroll', () => {
-    if(ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      updateHeader(chat.scrollTop);
-      ticking = false;
-    });
-  }, { passive: true });
-
-  function onPointerDown(e){
-    if(headerWrap.classList.contains('is-hidden')) return;
-    dragging = true;
-    startY = e.clientY;
-    currentY = 0;
-    headerWrap.classList.add('is-dragging');
-    headerWrap.setPointerCapture(e.pointerId);
-  }
-
-  function onPointerMove(e){
-    if(!dragging) return;
-    const dy = e.clientY - startY;
-    if(dy > 6) return;
-    currentY = Math.min(0, dy);
-    const hideDistance = getHideDistance();
-    headerWrap.style.transform = `translateY(${currentY}px)`;
-    headerWrap.style.opacity = String(Math.max(0, 1 + currentY / hideDistance));
-  }
-
-  function onPointerUp(e){
-    if(!dragging) return;
-    dragging = false;
-    headerWrap.classList.remove('is-dragging');
-    headerWrap.releasePointerCapture(e.pointerId);
-
-    const hideDistance = getHideDistance();
-    if(-currentY >= hideDistance * HIDE_RATIO){
-      headerWrap.classList.add('is-hidden');
     }
 
-    headerWrap.style.transform = '';
-    headerWrap.style.opacity = '';
-    currentY = 0;
-  }
+    function autoGrow(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+    }
 
-  headerWrap.addEventListener('pointerdown', onPointerDown);
-  headerWrap.addEventListener('pointermove', onPointerMove);
-  headerWrap.addEventListener('pointerup', onPointerUp);
-  headerWrap.addEventListener('pointercancel', onPointerUp);
-})();
-</script>
+    function updateSendBtn() {
+      const input = document.getElementById('input');
+      const btn = document.getElementById('sendBtn');
+      btn.disabled = !input.value.trim() || isSending;
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function useChip(el) {
+      const text = el.querySelector('span') ? el.querySelector('span').textContent : el.textContent;
+      document.getElementById('input').value = text;
+      updateSendBtn();
+      sendMessage();
+    }
+
+    function appendMessage(role, text) {
+      const chat = document.getElementById('chatArea');
+      const div = document.createElement('div');
+      div.className = 'msg ' + role;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      return div;
+    }
+
+    function appendTyping() {
+      const chat = document.getElementById('chatArea');
+      const div = document.createElement('div');
+      div.className = 'msg typing';
+      div.id = 'typingIndicator';
+      div.innerHTML = '<span></span><span></span><span></span>';
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function removeTyping() {
+      const el = document.getElementById('typingIndicator');
+      if (el) el.remove();
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('input');
+      const text = input.value.trim();
+      if (!text || isSending) return;
+
+      if (!API_URL) {
+        document.getElementById('settingsPanel').classList.add('open');
+        return;
+      }
+
+      const chips = document.getElementById('chips');
+      if (chips) chips.remove();
+
+      appendMessage('user', text);
+      input.value = "";
+      input.style.height = 'auto';
+      isSending = true;
+      document.getElementById('sendBtn').disabled = true;
+      appendTyping();
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text, history: history })
+        });
+        removeTyping();
+        if (!res.ok) {
+          appendMessage('error', '서버에서 오류가 발생했어요. 부스 담당자에게 알려주세요.');
+        } else {
+          const data = await res.json();
+          const reply = data.response || '(응답이 비어있습니다)';
+          appendMessage('bot', reply);
+          history.push({ role: "user", content: [{ type: "text", text: text }] });
+          history.push({ role: "assistant", content: [{ type: "text", text: reply }] });
+          if (history.length > 20) history = history.slice(-8);
+        }
+      } catch (e) {
+        removeTyping();
+        appendMessage('error', '서버에 연결할 수 없어요. Wi-Fi 또는 서버 상태를 확인해주세요.');
+      } finally {
+        isSending = false;
+        updateSendBtn();
+      }
+    }
+
+    checkConnection();
+
+    (function initHeaderBehavior() {
+      const chat = document.getElementById('chatArea');
+      const headerWrap = document.getElementById('headerWrap');
+      let lastScrollTop = 0;
+      let ticking = false;
+      let dragging = false;
+      let startY = 0;
+      let currentY = 0;
+      const HIDE_RATIO = 0.82;
+
+      function getHideDistance() {
+        return headerWrap.offsetHeight + 64;
+      }
+
+      function updateHeader(scrollTop) {
+        const delta = scrollTop - lastScrollTop;
+
+        if (scrollTop <= 10) {
+          headerWrap.classList.remove('is-compact', 'is-hidden');
+        } else if (delta > 3) {
+          headerWrap.classList.remove('is-hidden');
+          headerWrap.classList.add('is-compact');
+        }
+
+        lastScrollTop = scrollTop;
+      }
+
+      chat.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          updateHeader(chat.scrollTop);
+          ticking = false;
+        });
+      }, { passive: true });
+
+      function onPointerDown(e) {
+        if (headerWrap.classList.contains('is-hidden')) return;
+        dragging = true;
+        startY = e.clientY;
+        currentY = 0;
+        headerWrap.classList.add('is-dragging');
+        headerWrap.setPointerCapture(e.pointerId);
+      }
+
+      function onPointerMove(e) {
+        if (!dragging) return;
+        const dy = e.clientY - startY;
+        if (dy > 6) return;
+        currentY = Math.min(0, dy);
+        const hideDistance = getHideDistance();
+        headerWrap.style.transform = `translateY(${currentY}px)`;
+        headerWrap.style.opacity = String(Math.max(0, 1 + currentY / hideDistance));
+      }
+
+      function onPointerUp(e) {
+        if (!dragging) return;
+        dragging = false;
+        headerWrap.classList.remove('is-dragging');
+        headerWrap.releasePointerCapture(e.pointerId);
+
+        const hideDistance = getHideDistance();
+        if (-currentY >= hideDistance * HIDE_RATIO) {
+          headerWrap.classList.add('is-hidden');
+        }
+
+        headerWrap.style.transform = '';
+        headerWrap.style.opacity = '';
+        currentY = 0;
+      }
+
+      headerWrap.addEventListener('pointerdown', onPointerDown);
+      headerWrap.addEventListener('pointermove', onPointerMove);
+      headerWrap.addEventListener('pointerup', onPointerUp);
+      headerWrap.addEventListener('pointercancel', onPointerUp);
+    })();
+  </script>
 </body>
+
 </html>
