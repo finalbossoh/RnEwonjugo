@@ -278,6 +278,16 @@
     width: calc(100% - 32px);
     max-width: 488px;
     animation: headerFloat 0.8s var(--spring) 0.1s both;
+    transition:
+      transform 0.45s var(--spring-soft),
+      opacity 0.35s ease;
+    will-change: transform, opacity;
+  }
+
+  .header-wrap.is-hidden {
+    transform: translateY(calc(-100% - 64px));
+    opacity: 0;
+    pointer-events: none;
   }
 
   header {
@@ -285,6 +295,11 @@
     border-radius: var(--radius-xl);
     overflow: hidden;
     padding: 18px 20px 16px;
+    transition: padding 0.4s var(--spring-soft);
+  }
+
+  .header-wrap.is-compact:not(.is-hidden) header {
+    padding: 10px 18px 8px;
   }
 
   header .glass-layer {
@@ -340,6 +355,19 @@
     font-weight: 700;
     color: var(--text-tertiary);
     margin-bottom: 8px;
+    max-height: 24px;
+    opacity: 1;
+    overflow: hidden;
+    transition:
+      max-height 0.35s var(--spring-soft),
+      opacity 0.3s ease,
+      margin 0.35s var(--spring-soft);
+  }
+
+  .header-wrap.is-compact:not(.is-hidden) .eyebrow {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
   }
 
   .eyebrow::before {
@@ -363,6 +391,11 @@
     font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--text-primary);
+    transition: font-size 0.35s var(--spring-soft);
+  }
+
+  .header-wrap.is-compact:not(.is-hidden) .brand h1 {
+    font-size: 17px;
   }
 
   .brand h1 span { color: var(--accent); }
@@ -373,11 +406,24 @@
     color: var(--text-secondary);
     line-height: 1.55;
     font-weight: 400;
+    max-height: 80px;
+    opacity: 1;
+    overflow: hidden;
+    transition:
+      max-height 0.35s var(--spring-soft),
+      opacity 0.3s ease,
+      margin 0.35s var(--spring-soft);
+  }
+
+  .header-wrap.is-compact:not(.is-hidden) .sub {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
   }
 
   @keyframes headerFloat {
-    from { opacity: 0; transform: translateY(-20px) scale(0.94); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   /* ── Settings Panel ── */
@@ -493,6 +539,15 @@
     flex-direction: column;
     gap: 6px;
     scroll-behavior: smooth;
+    transition: padding-top 0.4s var(--spring-soft);
+  }
+
+  .app.header-compact .chat {
+    padding-top: calc(54px + var(--safe-top) + 72px);
+  }
+
+  .app.header-hidden .chat {
+    padding-top: calc(54px + var(--safe-top) + 24px);
   }
 
   .intro {
@@ -779,7 +834,7 @@
   </div>
 
   <!-- Floating Header -->
-  <div class="header-wrap">
+  <div class="header-wrap" id="headerWrap">
     <header>
       <div class="glass-layer glass-base"></div>
       <div class="glass-layer glass-shine"></div>
@@ -969,6 +1024,42 @@ async function sendMessage(){
 }
 
 checkConnection();
+
+(function initHeaderScroll(){
+  const chat = document.getElementById('chatArea');
+  const headerWrap = document.getElementById('headerWrap');
+  const app = document.querySelector('.app');
+  let lastScrollTop = 0;
+  let ticking = false;
+
+  function updateHeader(scrollTop){
+    const delta = scrollTop - lastScrollTop;
+
+    if(scrollTop <= 8){
+      headerWrap.classList.remove('is-compact', 'is-hidden');
+      app.classList.remove('header-compact', 'header-hidden');
+    } else if(delta > 2){
+      headerWrap.classList.remove('is-hidden');
+      app.classList.remove('header-hidden');
+      headerWrap.classList.add('is-compact');
+      app.classList.add('header-compact');
+    } else if(delta < -2){
+      headerWrap.classList.add('is-hidden');
+      app.classList.add('header-hidden');
+    }
+
+    lastScrollTop = scrollTop;
+  }
+
+  chat.addEventListener('scroll', () => {
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      updateHeader(chat.scrollTop);
+      ticking = false;
+    });
+  }, { passive: true });
+})();
 </script>
 </body>
 </html>
