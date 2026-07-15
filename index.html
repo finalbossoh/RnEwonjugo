@@ -322,11 +322,16 @@
     );
   }
 
-  .header-inner { position: relative; z-index: 1; }
+  .header-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
 
   .eyebrow {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 5px;
     font-size: 10.5px;
     letter-spacing: 0.1em;
@@ -347,7 +352,7 @@
   .brand {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 12px;
   }
 
@@ -793,8 +798,8 @@
     <div class="glass-base"></div>
     <div class="settings-inner">
       <label for="apiUrl">Colab 서버 주소 (API URL)</label>
-      <input type="text" id="apiUrl" placeholder="https://xxxx-xx-xxx.ngrok-free.app/chat">
-      <div class="hint">Colab 노트북 실행 후 출력된 ngrok 주소 뒤에 <b>/chat</b>을 붙여 입력하세요.<br>세션을 새로 시작하면 주소가 바뀌니 매번 확인해주세요.</div>
+      <input type="text" id="apiUrl" value="https://aware-jot-salvation.ngrok-free.dev/chat" readonly>
+      <div class="hint">Colab 서버 주소가 고정되어 있습니다.</div>
       <button onclick="saveApiUrl()">연결하기</button>
     </div>
   </div>
@@ -814,7 +819,7 @@
   <div class="composer-wrap">
     <div class="composer">
       <div class="glass-base"></div>
-      <textarea id="input" rows="1" placeholder="메시지 입력 하기" onkeydown="handleKey(event)" oninput="autoGrow(this); updateSendBtn()"></textarea>
+      <textarea id="input" rows="1" placeholder="iMessage" onkeydown="handleKey(event)" oninput="autoGrow(this); updateSendBtn()"></textarea>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled aria-label="전송">
         <svg viewBox="0 0 24 24"><path d="M3.4 20.4l17.45-7.6c.81-.35.81-1.49 0-1.84L3.4 3.36c-.66-.29-1.39.2-1.39.91v15.46c0 .71.73 1.19 1.39.91z"/></svg>
       </button>
@@ -825,7 +830,7 @@
 </div>
 
 <script>
-let API_URL = "";
+const API_URL = "https://aware-jot-salvation.ngrok-free.dev/chat";
 let history = [];
 let isSending = false;
 
@@ -834,9 +839,6 @@ function toggleSettings(){
 }
 
 function saveApiUrl(){
-  const val = document.getElementById('apiUrl').value.trim();
-  if(!val){ return; }
-  API_URL = val;
   document.getElementById('settingsPanel').classList.remove('open');
   checkConnection();
 }
@@ -964,6 +966,8 @@ async function sendMessage(){
     updateSendBtn();
   }
 }
+
+checkConnection();
 </script>
 </body>
 </html>
