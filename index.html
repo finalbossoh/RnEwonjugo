@@ -282,6 +282,15 @@
       transform 0.45s var(--spring-soft),
       opacity 0.35s ease;
     will-change: transform, opacity;
+    touch-action: pan-x;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .header-wrap.is-dragging {
+    transition: none;
+    cursor: grabbing;
   }
 
   .header-wrap.is-hidden {
@@ -299,7 +308,24 @@
   }
 
   .header-wrap.is-compact:not(.is-hidden) header {
-    padding: 10px 18px 8px;
+    height: 44px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-wrap.is-compact:not(.is-hidden) .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .header-wrap.is-compact:not(.is-hidden) .brand {
+    width: 100%;
+    justify-content: center;
   }
 
   header .glass-layer {
@@ -396,6 +422,7 @@
 
   .header-wrap.is-compact:not(.is-hidden) .brand h1 {
     font-size: 17px;
+    line-height: 1;
   }
 
   .brand h1 span { color: var(--accent); }
@@ -1015,11 +1042,19 @@ async function sendMessage(){
 
 checkConnection();
 
-(function initHeaderScroll(){
+(function initHeaderBehavior(){
   const chat = document.getElementById('chatArea');
   const headerWrap = document.getElementById('headerWrap');
   let lastScrollTop = 0;
   let ticking = false;
+  let dragging = false;
+  let startY = 0;
+  let currentY = 0;
+  const HIDE_RATIO = 0.82;
+
+  function getHideDistance(){
+    return headerWrap.offsetHeight + 64;
+  }
 
   function updateHeader(scrollTop){
     const delta = scrollTop - lastScrollTop;
@@ -1029,8 +1064,6 @@ checkConnection();
     } else if(delta > 3){
       headerWrap.classList.remove('is-hidden');
       headerWrap.classList.add('is-compact');
-    } else if(delta < -3){
-      headerWrap.classList.add('is-hidden');
     }
 
     lastScrollTop = scrollTop;
@@ -1044,6 +1077,46 @@ checkConnection();
       ticking = false;
     });
   }, { passive: true });
+
+  function onPointerDown(e){
+    if(headerWrap.classList.contains('is-hidden')) return;
+    dragging = true;
+    startY = e.clientY;
+    currentY = 0;
+    headerWrap.classList.add('is-dragging');
+    headerWrap.setPointerCapture(e.pointerId);
+  }
+
+  function onPointerMove(e){
+    if(!dragging) return;
+    const dy = e.clientY - startY;
+    if(dy > 6) return;
+    currentY = Math.min(0, dy);
+    const hideDistance = getHideDistance();
+    headerWrap.style.transform = `translateY(${currentY}px)`;
+    headerWrap.style.opacity = String(Math.max(0, 1 + currentY / hideDistance));
+  }
+
+  function onPointerUp(e){
+    if(!dragging) return;
+    dragging = false;
+    headerWrap.classList.remove('is-dragging');
+    headerWrap.releasePointerCapture(e.pointerId);
+
+    const hideDistance = getHideDistance();
+    if(-currentY >= hideDistance * HIDE_RATIO){
+      headerWrap.classList.add('is-hidden');
+    }
+
+    headerWrap.style.transform = '';
+    headerWrap.style.opacity = '';
+    currentY = 0;
+  }
+
+  headerWrap.addEventListener('pointerdown', onPointerDown);
+  headerWrap.addEventListener('pointermove', onPointerMove);
+  headerWrap.addEventListener('pointerup', onPointerUp);
+  headerWrap.addEventListener('pointercancel', onPointerUp);
 })();
 </script>
 </body>
