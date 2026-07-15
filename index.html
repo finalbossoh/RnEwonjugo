@@ -2,311 +2,826 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#E8F0FF" media="(prefers-color-scheme: light)">
 <title>KORIMA AI</title>
 <style>
-  :root{
-    --ink:#171522;
-    --paper:#FAF7F0;
-    --panel:#FFFFFF;
-    --navy:#1B1F3B;
-    --amber:#FFB627;
-    --coral:#FF5A5F;
-    --line:#E7E1D4;
-    --muted:#8A8578;
-    --good:#2FBF71;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    background-image:
-      radial-gradient(circle at 10% 8%, rgba(255,182,39,0.14), transparent 40%),
-      radial-gradient(circle at 90% 92%, rgba(255,90,95,0.10), transparent 45%);
-  }
-  @font-face{
-    font-family:'SpaceGroteskFallback';
-    src:local('Arial');
-  }
-  .app{
-    width:100%;
-    max-width:520px;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    background:var(--panel);
-    box-shadow:0 0 60px rgba(23,21,34,0.06);
-    position:relative;
+  :root {
+    --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --spring-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
+    --glass-bg: rgba(255, 255, 255, 0.42);
+    --glass-bg-2: rgba(255, 255, 255, 0.28);
+    --glass-border: rgba(255, 255, 255, 0.72);
+    --glass-highlight: rgba(255, 255, 255, 0.55);
+    --text-primary: #0f172a;
+    --text-secondary: rgba(15, 23, 42, 0.62);
+    --text-tertiary: rgba(15, 23, 42, 0.42);
+    --bubble-user: #007AFF;
+    --bubble-user-text: #fff;
+    --bubble-bot: rgba(233, 233, 235, 0.85);
+    --bubble-bot-text: #0f172a;
+    --accent: #007AFF;
+    --good: #34C759;
+    --coral: #FF3B30;
+    --amber: #FF9500;
+    --blur: 40px;
+    --blur-sm: 24px;
+    --radius-xl: 28px;
+    --radius-lg: 22px;
+    --radius-md: 18px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --header-offset: calc(88px + var(--safe-top));
+    --island-h: 36px;
   }
 
-  /* Header */
-  header{
-    background:var(--navy);
-    color:#fff;
-    padding:22px 20px 20px;
-    position:relative;
-    overflow:hidden;
-  }
-  header::after{
-    content:"";
-    position:absolute;
-    right:-40px; top:-40px;
-    width:140px; height:140px;
-    background:var(--amber);
-    border-radius:50%;
-    opacity:0.18;
-  }
-  .eyebrow{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    font-size:11px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    background:rgba(255,255,255,0.1);
-    padding:4px 10px;
-    border-radius:100px;
-    color:var(--amber);
-    font-weight:700;
-    margin-bottom:12px;
-  }
-  .brand{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-  }
-  .brand h1{
-    margin:0;
-    font-size:26px;
-    font-weight:800;
-    letter-spacing:-0.01em;
-  }
-  .brand h1 span{color:var(--amber);}
-  .status-pill{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-size:12px;
-    padding:6px 10px;
-    border-radius:100px;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.15);
-    cursor:pointer;
-    white-space:nowrap;
-  }
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--coral);flex-shrink:0;}
-  .dot.on{background:var(--good); box-shadow:0 0 0 3px rgba(47,191,113,0.25);}
-  .sub{margin:10px 0 0; font-size:13px; color:rgba(255,255,255,0.72); line-height:1.5;}
-
-  /* Settings panel */
-  .settings{
-    display:none;
-    padding:14px 20px;
-    background:#F1ECDF;
-    border-bottom:1px solid var(--line);
-    font-size:13px;
-  }
-  .settings.open{display:block;}
-  .settings label{display:block; font-weight:700; margin-bottom:6px; color:var(--navy);}
-  .settings input{
-    width:100%;
-    padding:9px 10px;
-    border:1.5px solid var(--line);
-    border-radius:8px;
-    font-size:13px;
-    font-family:inherit;
-    background:#fff;
-  }
-  .settings .hint{color:var(--muted); margin-top:6px; font-size:11.5px; line-height:1.5;}
-  .settings button{
-    margin-top:10px;
-    background:var(--navy);
-    color:#fff;
-    border:none;
-    padding:8px 14px;
-    border-radius:8px;
-    font-size:12.5px;
-    font-weight:700;
-    cursor:pointer;
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --glass-bg: rgba(30, 30, 32, 0.55);
+      --glass-bg-2: rgba(44, 44, 46, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --glass-highlight: rgba(255, 255, 255, 0.08);
+      --text-primary: #f5f5f7;
+      --text-secondary: rgba(245, 245, 247, 0.68);
+      --text-tertiary: rgba(245, 245, 247, 0.42);
+      --bubble-bot: rgba(58, 58, 60, 0.88);
+      --bubble-bot-text: #f5f5f7;
+      --accent: #0A84FF;
+      --bubble-user: #0A84FF;
+    }
   }
 
-  /* Chat area */
-  .chat{
-    flex:1;
-    padding:18px 16px;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .msg{
-    max-width:82%;
-    padding:11px 14px;
-    border-radius:14px;
-    font-size:14.5px;
-    line-height:1.55;
-    white-space:pre-wrap;
-  }
-  .msg.bot{
-    align-self:flex-start;
-    background:#F2EFE6;
-    border-bottom-left-radius:4px;
-    color:var(--ink);
-  }
-  .msg.user{
-    align-self:flex-end;
-    background:var(--navy);
-    color:#fff;
-    border-bottom-right-radius:4px;
-  }
-  .msg.typing{
-    align-self:flex-start;
-    background:#F2EFE6;
-    display:flex;
-    gap:4px;
-    align-items:center;
-    padding:13px 16px;
-  }
-  .typing span{
-    width:6px;height:6px;border-radius:50%;background:var(--muted);
-    animation:bounce 1.2s infinite ease-in-out;
-  }
-  .typing span:nth-child(2){animation-delay:0.15s;}
-  .typing span:nth-child(3){animation-delay:0.3s;}
-  @keyframes bounce{
-    0%,80%,100%{transform:translateY(0); opacity:0.5;}
-    40%{transform:translateY(-4px); opacity:1;}
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
   }
 
-  .msg.error{
-    align-self:flex-start;
-    background:#FFF0EE;
-    color:#B33430;
-    border:1px solid #F6C9C4;
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+      'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    color: var(--text-primary);
+    background: #c8daf5;
+    position: relative;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .intro{
-    padding:4px 4px 6px;
-    color:var(--muted);
-    font-size:12.5px;
-    line-height:1.6;
+  @media (prefers-color-scheme: dark) {
+    body { background: #0a0a0c; }
   }
-  .intro b{color:var(--ink);}
+
+  /* ── Animated Background Blobs ── */
+  .bg-layer {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    will-change: transform;
+  }
+
+  .blob-1 {
+    width: 420px; height: 420px;
+    background: rgba(100, 180, 255, 0.45);
+    top: -120px; left: -100px;
+    animation: blobDrift1 14s ease-in-out infinite;
+  }
+
+  .blob-2 {
+    width: 360px; height: 360px;
+    background: rgba(180, 130, 255, 0.35);
+    top: 30%; right: -120px;
+    animation: blobDrift2 18s ease-in-out infinite;
+  }
+
+  .blob-3 {
+    width: 480px; height: 480px;
+    background: rgba(255, 140, 180, 0.28);
+    bottom: -160px; left: 10%;
+    animation: blobDrift3 16s ease-in-out infinite;
+  }
+
+  .blob-4 {
+    width: 280px; height: 280px;
+    background: rgba(80, 220, 180, 0.25);
+    bottom: 20%; right: 15%;
+    animation: blobDrift4 12s ease-in-out infinite;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .blob-1 { background: rgba(10, 132, 255, 0.22); }
+    .blob-2 { background: rgba(175, 82, 222, 0.18); }
+    .blob-3 { background: rgba(255, 55, 95, 0.14); }
+    .blob-4 { background: rgba(48, 209, 88, 0.12); }
+  }
+
+  @keyframes blobDrift1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(90px, 70px) scale(1.12); }
+    66% { transform: translate(40px, 120px) scale(0.95); }
+  }
+  @keyframes blobDrift2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-80px, 100px) scale(1.18); }
+  }
+  @keyframes blobDrift3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40% { transform: translate(60px, -80px) scale(1.1); }
+    80% { transform: translate(-40px, -30px) scale(0.92); }
+  }
+  @keyframes blobDrift4 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-50px, -60px) scale(1.15); }
+  }
+
+  /* ── App Shell ── */
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    height: 100dvh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Dynamic Island (Connection Status) ── */
+  .dynamic-island-wrap {
+    position: fixed;
+    top: calc(10px + var(--safe-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .dynamic-island {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--island-h);
+    padding: 0 16px;
+    border-radius: 100px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.5s var(--spring), box-shadow 0.4s var(--spring-soft),
+                padding 0.45s var(--spring), gap 0.4s var(--spring-soft);
+    animation: islandEnter 0.7s var(--spring) both;
+  }
+
+  .dynamic-island:active {
+    transform: scale(0.96);
+    transition-duration: 0.15s;
+  }
+
+  /* Multi-layer glass */
+  .dynamic-island .glass-layer {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .dynamic-island .glass-base {
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  @media (prefers-color-scheme: light) {
+    .dynamic-island .glass-base {
+      background: rgba(20, 20, 22, 0.82);
+    }
+  }
+
+  .dynamic-island .glass-shine {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.04) 40%,
+      transparent 100%
+    );
+  }
+
+  .dynamic-island .island-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--coral);
+    flex-shrink: 0;
+    transition: background 0.4s var(--spring), box-shadow 0.4s var(--spring);
+  }
+
+  .dot.on {
+    background: var(--good);
+    box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3);
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes dotPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3); }
+    50% { box-shadow: 0 0 0 5px rgba(52, 199, 89, 0.15); }
+  }
+
+  @keyframes islandEnter {
+    from { opacity: 0; transform: translateY(-12px) scale(0.85); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ── Floating Header (iOS 26 style) ── */
+  .header-wrap {
+    position: fixed;
+    top: calc(54px + var(--safe-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 90;
+    width: calc(100% - 32px);
+    max-width: 488px;
+    animation: headerFloat 0.8s var(--spring) 0.1s both;
+  }
+
+  header {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    padding: 18px 20px 16px;
+  }
+
+  header .glass-layer {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  header .glass-base {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--blur)) saturate(200%);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(200%);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.08),
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      inset 0 1.5px 0 var(--glass-highlight),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+  }
+
+  header .glass-shine {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.1) 30%,
+      transparent 60%
+    );
+  }
+
+  header .glass-edge {
+    background: linear-gradient(
+      180deg,
+      transparent 85%,
+      rgba(255, 255, 255, 0.15) 100%
+    );
+  }
+
+  .header-inner { position: relative; z-index: 1; }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 6px rgba(255, 149, 0, 0.5);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .brand h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+  }
+
+  .brand h1 span { color: var(--accent); }
+
+  .sub {
+    margin: 8px 0 0;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  @keyframes headerFloat {
+    from { opacity: 0; transform: translateY(-20px) scale(0.94); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ── Settings Panel ── */
+  .settings {
+    display: none;
+    position: fixed;
+    top: calc(var(--header-offset) + 100px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    z-index: 85;
+    width: calc(100% - 32px);
+    max-width: 488px;
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.35s var(--spring-soft), transform 0.4s var(--spring);
+    overflow: hidden;
+  }
+
+  .settings.open {
+    display: block;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    animation: settingsPop 0.45s var(--spring);
+  }
+
+  .settings .glass-base {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--glass-bg-2);
+    backdrop-filter: blur(var(--blur-sm)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--blur-sm)) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      0 16px 48px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 var(--glass-highlight);
+    pointer-events: none;
+  }
+
+  .settings-inner { position: relative; z-index: 1; }
+
+  .settings label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+    font-size: 12.5px;
+  }
+
+  .settings input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    font-size: 13px;
+    font-family: inherit;
+    background: rgba(255, 255, 255, 0.35);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.3s var(--spring-soft), box-shadow 0.3s var(--spring-soft);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .settings input { background: rgba(0, 0, 0, 0.25); }
+  }
+
+  .settings input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+  }
+
+  .settings .hint {
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  .settings button {
+    margin-top: 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.3s var(--spring), filter 0.2s;
+  }
+
+  .settings button:active { transform: scale(0.96); }
+
+  @keyframes settingsPop {
+    from { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.95); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  }
+
+  /* ── Chat Area (Apple Messages) ── */
+  .chat {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding:
+      calc(var(--header-offset) + 108px)
+      16px
+      calc(90px + var(--safe-bottom))
+      16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    scroll-behavior: smooth;
+  }
+
+  .intro {
+    text-align: center;
+    padding: 8px 12px 12px;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    line-height: 1.6;
+    animation: fadeUp 0.6s var(--spring-soft) 0.2s both;
+  }
+
+  .intro b { color: var(--text-secondary); font-weight: 600; }
+
+  /* Message bubbles */
+  .msg {
+    max-width: 78%;
+    padding: 9px 14px;
+    font-size: 15px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+    position: relative;
+    animation: msgIn 0.4s var(--spring) both;
+  }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.92); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.bot {
+    align-self: flex-start;
+    background: var(--bubble-bot);
+    color: var(--bubble-bot-text);
+    border-radius: 18px 18px 18px 4px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    background: var(--bubble-user);
+    color: var(--bubble-user-text);
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+  }
+
+  .msg.typing {
+    align-self: flex-start;
+    background: var(--bubble-bot);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px 18px 18px 4px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 12px 16px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .typing span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    animation: typingBounce 1.4s infinite ease-in-out;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.18s; }
+  .typing span:nth-child(3) { animation-delay: 0.36s; }
+
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  .msg.error {
+    align-self: flex-start;
+    background: rgba(255, 59, 48, 0.12);
+    color: #FF3B30;
+    border: 1px solid rgba(255, 59, 48, 0.25);
+    border-radius: 18px 18px 18px 4px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .msg.error {
+      background: rgba(255, 69, 58, 0.18);
+      color: #FF6961;
+    }
+  }
 
   /* Suggestion chips */
-  .chips{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    padding:2px 4px 8px;
-  }
-  .chip{
-    border:1.5px solid var(--line);
-    background:#fff;
-    padding:8px 12px;
-    border-radius:100px;
-    font-size:12.5px;
-    color:var(--navy);
-    cursor:pointer;
-    font-weight:600;
-    transition:transform 0.12s ease, border-color 0.12s ease;
-  }
-  .chip:hover{border-color:var(--amber); transform:translateY(-1px);}
-  .chip:active{transform:translateY(0);}
-
-  /* Input bar */
-  .composer{
-    padding:12px 14px calc(14px + env(safe-area-inset-bottom));
-    border-top:1px solid var(--line);
-    background:var(--panel);
-    display:flex;
-    gap:8px;
-    align-items:flex-end;
-  }
-  .composer textarea{
-    flex:1;
-    resize:none;
-    border:1.5px solid var(--line);
-    border-radius:14px;
-    padding:11px 14px;
-    font-size:14.5px;
-    font-family:inherit;
-    line-height:1.4;
-    max-height:100px;
-    outline:none;
-  }
-  .composer textarea:focus{border-color:var(--navy);}
-  .send-btn{
-    width:44px; height:44px;
-    border-radius:12px;
-    border:none;
-    background:var(--amber);
-    color:var(--navy);
-    font-size:18px;
-    cursor:pointer;
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:filter 0.12s ease;
-  }
-  .send-btn:disabled{background:#EDE7D8; color:var(--muted); cursor:not-allowed;}
-  .send-btn:not(:disabled):hover{filter:brightness(1.05);}
-
-  .disclaimer{
-    text-align:center;
-    font-size:10.5px;
-    color:var(--muted);
-    padding:6px 16px 10px;
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 2px 10px;
+    justify-content: center;
+    animation: fadeUp 0.6s var(--spring-soft) 0.35s both;
   }
 
-  ::-webkit-scrollbar{width:6px;}
-  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:10px;}
+  .chip {
+    position: relative;
+    overflow: hidden;
+    padding: 8px 14px;
+    border-radius: 100px;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.35s var(--spring), box-shadow 0.3s var(--spring-soft);
+  }
+
+  .chip .glass-base {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--glass-bg-2);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
+    pointer-events: none;
+    transition: background 0.3s;
+  }
+
+  .chip span { position: relative; z-index: 1; }
+
+  .chip:active { transform: scale(0.95); }
+  .chip:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); }
+
+  /* ── Composer (Messages-style input with inner send) ── */
+  .composer-wrap {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 90;
+    width: 100%;
+    max-width: 520px;
+    padding: 8px 14px calc(10px + var(--safe-bottom));
+    animation: composerUp 0.7s var(--spring) 0.15s both;
+  }
+
+  .composer {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    padding: 6px 6px 6px 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .composer .glass-base {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--blur)) saturate(200%);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(200%);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      0 -4px 24px rgba(0, 0, 0, 0.06),
+      inset 0 1.5px 0 var(--glass-highlight);
+    pointer-events: none;
+  }
+
+  .composer textarea {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    resize: none;
+    border: none;
+    background: transparent;
+    padding: 8px 0;
+    font-size: 15px;
+    font-family: inherit;
+    line-height: 1.4;
+    max-height: 100px;
+    outline: none;
+    color: var(--text-primary);
+  }
+
+  .composer textarea::placeholder { color: var(--text-tertiary); }
+
+  .send-btn {
+    position: relative;
+    z-index: 1;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
+    transition: transform 0.35s var(--spring), opacity 0.3s, background 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.35);
+  }
+
+  .send-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    margin-left: 1px;
+  }
+
+  .send-btn:disabled {
+    background: var(--text-tertiary);
+    opacity: 0.35;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: scale(0.92);
+  }
+
+  .send-btn:not(:disabled):active { transform: scale(0.88); }
+  .send-btn:not(:disabled):hover { transform: scale(1.06); }
+
+  .disclaimer {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    padding: 4px 16px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes composerUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(24px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* Scrollbar */
+  .chat::-webkit-scrollbar { width: 0; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .blob { animation: none !important; }
+  }
 </style>
 </head>
 <body>
+
+<!-- Animated Background -->
+<div class="bg-layer" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+</div>
+
 <div class="app">
 
-  <header>
-    <div class="eyebrow">● 원주고등학교 학술 발표회 · AI 체험 부스</div>
-    <div class="brand">
-      <h1>KORIMA<span>.</span> AI</h1>
-      <div class="status-pill" id="statusPill" onclick="toggleSettings()">
+  <!-- Dynamic Island: Connection Status -->
+  <div class="dynamic-island-wrap">
+    <div class="dynamic-island" id="statusPill" onclick="toggleSettings()" role="button" aria-label="연결 상태 및 설정">
+      <div class="glass-layer glass-base"></div>
+      <div class="glass-layer glass-shine"></div>
+      <div class="island-content">
         <span class="dot" id="statusDot"></span>
         <span id="statusText">연결 안 됨</span>
       </div>
     </div>
-    <p class="sub">원주고등학교 학생이 직접 만든 AI 모델과 실시간으로 대화해보세요. 무엇이든 편하게 물어보세요!</p>
-  </header>
-
-  <div class="settings" id="settingsPanel">
-    <label for="apiUrl">Colab 서버 주소 (API URL)</label>
-    <input type="text" id="apiUrl" placeholder="https://xxxx-xx-xxx.ngrok-free.app/chat">
-    <div class="hint">Colab 노트북 실행 후 출력된 ngrok 주소 뒤에 <b>/chat</b>을 붙여 입력하세요.<br>세션을 새로 시작하면 주소가 바뀌니 매번 확인해주세요.</div>
-    <button onclick="saveApiUrl()">연결하기</button>
   </div>
 
-  <div class="chat" id="chatArea">
-    <div class="intro"><b>KORIMA AI</b>는 학생들이 직접 학습시킨 AI 모델입니다. 아래 예시 질문을 눌러보거나, 궁금한 걸 자유롭게 입력해보세요.</div>
-    <div class="chips" id="chips">
-      <div class="chip" onclick="useChip(this)">넌 누구야?</div>
-      <div class="chip" onclick="useChip(this)">AI는 어떻게 학습하는거야?</div>
-      <div class="chip" onclick="useChip(this)">재밌는 이야기 하나 해줘</div>
-      <div class="chip" onclick="useChip(this)">오늘 날씨에 어울리는 시 써줘</div>
+  <!-- Floating Header -->
+  <div class="header-wrap">
+    <header>
+      <div class="glass-layer glass-base"></div>
+      <div class="glass-layer glass-shine"></div>
+      <div class="glass-layer glass-edge"></div>
+      <div class="header-inner">
+        <div class="eyebrow">원주고등학교 학술 발표회 · AI 체험 부스</div>
+        <div class="brand">
+          <h1>KORIMA<span>.</span> AI</h1>
+        </div>
+        <p class="sub">원주고등학교 학생이 직접 만든 AI 모델과 실시간으로 대화해보세요. 무엇이든 편하게 물어보세요!</p>
+      </div>
+    </header>
+  </div>
+
+  <!-- Settings Panel -->
+  <div class="settings" id="settingsPanel">
+    <div class="glass-base"></div>
+    <div class="settings-inner">
+      <label for="apiUrl">Colab 서버 주소 (API URL)</label>
+      <input type="text" id="apiUrl" placeholder="https://xxxx-xx-xxx.ngrok-free.app/chat">
+      <div class="hint">Colab 노트북 실행 후 출력된 ngrok 주소 뒤에 <b>/chat</b>을 붙여 입력하세요.<br>세션을 새로 시작하면 주소가 바뀌니 매번 확인해주세요.</div>
+      <button onclick="saveApiUrl()">연결하기</button>
     </div>
   </div>
 
-  <div class="composer">
-    <textarea id="input" rows="1" placeholder="메시지를 입력하세요..." onkeydown="handleKey(event)" oninput="autoGrow(this)"></textarea>
-    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  <!-- Chat -->
+  <div class="chat" id="chatArea">
+    <div class="intro"><b>KORIMA AI</b>는 학생들이 직접 학습시킨 AI 모델입니다. 아래 예시 질문을 눌러보거나, 궁금한 걸 자유롭게 입력해보세요.</div>
+    <div class="chips" id="chips">
+      <div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>넌 누구야?</span></div>
+      <div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>AI는 어떻게 학습하는거야?</span></div>
+      <div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>재밌는 이야기 하나 해줘</span></div>
+      <div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>오늘 날씨에 어울리는 시 써줘</span></div>
+    </div>
   </div>
-  <div class="disclaimer">KORIMA AI는 실수를 할 수 있어요. 재미로 즐겨주세요 🙂</div>
+
+  <!-- Composer -->
+  <div class="composer-wrap">
+    <div class="composer">
+      <div class="glass-base"></div>
+      <textarea id="input" rows="1" placeholder="iMessage" onkeydown="handleKey(event)" oninput="autoGrow(this); updateSendBtn()"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled aria-label="전송">
+        <svg viewBox="0 0 24 24"><path d="M3.4 20.4l17.45-7.6c.81-.35.81-1.49 0-1.84L3.4 3.36c-.66-.29-1.39.2-1.39.91v15.46c0 .71.73 1.19 1.39.91z"/></svg>
+      </button>
+    </div>
+    <div class="disclaimer">KORIMA AI는 실수를 할 수 있어요. 재미로 즐겨주세요 🙂</div>
+  </div>
+
 </div>
 
 <script>
@@ -359,6 +874,12 @@ function autoGrow(el){
   el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
 
+function updateSendBtn(){
+  const input = document.getElementById('input');
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = !input.value.trim() || isSending;
+}
+
 function handleKey(e){
   if(e.key === 'Enter' && !e.shiftKey){
     e.preventDefault();
@@ -367,7 +888,9 @@ function handleKey(e){
 }
 
 function useChip(el){
-  document.getElementById('input').value = el.textContent;
+  const text = el.querySelector('span') ? el.querySelector('span').textContent : el.textContent;
+  document.getElementById('input').value = text;
+  updateSendBtn();
   sendMessage();
 }
 
@@ -438,7 +961,7 @@ async function sendMessage(){
     appendMessage('error', '서버에 연결할 수 없어요. Wi-Fi 또는 서버 상태를 확인해주세요.');
   } finally {
     isSending = false;
-    document.getElementById('sendBtn').disabled = false;
+    updateSendBtn();
   }
 }
 </script>
