@@ -538,16 +538,6 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    scroll-behavior: smooth;
-    transition: padding-top 0.4s var(--spring-soft);
-  }
-
-  .app.header-compact .chat {
-    padding-top: calc(54px + var(--safe-top) + 72px);
-  }
-
-  .app.header-hidden .chat {
-    padding-top: calc(54px + var(--safe-top) + 24px);
   }
 
   .intro {
@@ -1028,24 +1018,19 @@ checkConnection();
 (function initHeaderScroll(){
   const chat = document.getElementById('chatArea');
   const headerWrap = document.getElementById('headerWrap');
-  const app = document.querySelector('.app');
   let lastScrollTop = 0;
   let ticking = false;
 
   function updateHeader(scrollTop){
     const delta = scrollTop - lastScrollTop;
 
-    if(scrollTop <= 8){
+    if(scrollTop <= 10){
       headerWrap.classList.remove('is-compact', 'is-hidden');
-      app.classList.remove('header-compact', 'header-hidden');
-    } else if(delta > 2){
+    } else if(delta > 3){
       headerWrap.classList.remove('is-hidden');
-      app.classList.remove('header-hidden');
       headerWrap.classList.add('is-compact');
-      app.classList.add('header-compact');
-    } else if(delta < -2){
+    } else if(delta < -3){
       headerWrap.classList.add('is-hidden');
-      app.classList.add('header-hidden');
     }
 
     lastScrollTop = scrollTop;
