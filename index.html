@@ -1068,7 +1068,17 @@ checkConnection();
 
     lastScrollTop = scrollTop;
   }
-
+  window.addEventListener("load", async () => {
+      try {
+          await fetch("https://aware-jot-salvation.ngrok-free.dev/health", {
+              headers: {
+                  "ngrok-skip-browser-warning": "1"
+              }
+          });
+      } catch (e) {
+          console.log("Warm-up failed");
+      }
+  });
   chat.addEventListener('scroll', () => {
     if(ticking) return;
     ticking = true;
