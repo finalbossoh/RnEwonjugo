@@ -267,114 +267,7 @@
       overflow: hidden;
     }
 
-    /* ── Dynamic Island (Connection Status) ── */
-    .dynamic-island-wrap {
-      position: fixed;
-      top: calc(10px + var(--safe-top));
-      left: calc(50% + var(--sidebar-w) / 2);
-      transform: translateX(-50%);
-      z-index: 100;
-      width: 100%;
-      max-width: 520px;
-      display: flex;
-      justify-content: center;
-      pointer-events: none;
-      transition: left 0.5s var(--spring);
-    }
-
-    .dynamic-island {
-      pointer-events: auto;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: var(--island-h);
-      padding: 0 16px;
-      border-radius: 100px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.5s var(--spring), box-shadow 0.4s var(--spring-soft),
-        padding 0.45s var(--spring), gap 0.4s var(--spring-soft);
-      animation: islandEnter 0.7s var(--spring) both;
-    }
-
-    .dynamic-island:active {
-      transform: scale(0.96);
-      transition-duration: 0.15s;
-    }
-
-    /* Multi-layer glass */
-    .dynamic-island .glass-layer {
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      pointer-events: none;
-    }
-
-    .dynamic-island .glass-base {
-      background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(30px) saturate(180%);
-      -webkit-backdrop-filter: blur(30px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-    }
-
-    @media (prefers-color-scheme: light) {
-      .dynamic-island .glass-base {
-        background: rgba(20, 20, 22, 0.82);
-      }
-    }
-
-    .dynamic-island .glass-shine {
-      background: linear-gradient(180deg,
-          rgba(255, 255, 255, 0.18) 0%,
-          rgba(255, 255, 255, 0.04) 40%,
-          transparent 100%);
-    }
-
-    .dynamic-island .island-content {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-      font-size: 12.5px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--coral);
-      flex-shrink: 0;
-      transition: background 0.4s var(--spring), box-shadow 0.4s var(--spring);
-    }
-
-    .dot.on {
-      background: var(--good);
-      box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3);
-      animation: dotPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes dotPulse {
-
-      0%,
-      100% {
-        box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3);
-      }
-
-      50% {
-        box-shadow: 0 0 0 5px rgba(52, 199, 89, 0.15);
-      }
-    }
-
+    /* ── Menu button entrance animation (재사용) ── */
     @keyframes islandEnter {
       from {
         opacity: 0;
@@ -676,6 +569,36 @@
 
     .settings button:active {
       transform: scale(0.96);
+    }
+
+    .settings-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .settings-head h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 84;
+      background: rgba(0, 0, 0, 0.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s var(--spring-soft);
+    }
+
+    .settings-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .theme-row {
@@ -1467,18 +1390,6 @@
 
   <div class="app">
 
-    <!-- Dynamic Island: Connection Status -->
-    <div class="dynamic-island-wrap">
-      <div class="dynamic-island" id="statusPill" onclick="toggleSettings()" role="button" aria-label="연결 상태 및 설정">
-        <div class="glass-layer glass-base"></div>
-        <div class="glass-layer glass-shine"></div>
-        <div class="island-content">
-          <span class="dot" id="statusDot"></span>
-          <span id="statusText">연결 안 됨</span>
-        </div>
-      </div>
-    </div>
-
     <!-- Floating Header -->
     <div class="header-wrap" id="headerWrap">
       <header>
@@ -1495,10 +1406,21 @@
       </header>
     </div>
 
+    <!-- Settings Overlay (바깥 탭하면 닫힘) -->
+    <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+
     <!-- Settings Panel -->
     <div class="settings" id="settingsPanel">
       <div class="glass-base"></div>
       <div class="settings-inner">
+        <div class="settings-head">
+          <h3>설정</h3>
+          <button class="icon-btn" onclick="closeSettings()" aria-label="설정 닫기">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
         <div class="theme-row">
           <label style="margin-bottom:0;">테마</label>
           <div class="seg-control" id="themeSegControl">
@@ -1560,13 +1482,13 @@
     let conversations = [];
     let currentConvoId = null;
 
-    function toggleSettings() {
-      document.getElementById('settingsPanel').classList.toggle('open');
+    function closeSettings() {
+      document.getElementById('settingsPanel').classList.remove('open');
+      document.getElementById('settingsOverlay').classList.remove('open');
     }
 
     function saveApiUrl() {
-      document.getElementById('settingsPanel').classList.remove('open');
-      checkConnection();
+      closeSettings();
     }
 
     /* ══════════ 사이드바 열기/닫기 ══════════ */
@@ -1605,6 +1527,7 @@
 
     function openSettingsFromSidebar() {
       document.getElementById('settingsPanel').classList.add('open');
+      document.getElementById('settingsOverlay').classList.add('open');
       if (!isDesktop()) closeSidebar();
     }
 
@@ -1805,34 +1728,6 @@
       if (!document.documentElement.getAttribute('data-theme')) updateThemeColorMeta();
     });
 
-    async function checkConnection() {
-      const dot = document.getElementById('statusDot');
-      const text = document.getElementById('statusText');
-
-      text.textContent = "확인 중...";
-
-      try {
-        const res = await fetch("https://aware-jot-salvation.ngrok-free.dev/health", {
-          method: "GET",
-          headers: {
-            "ngrok-skip-browser-warning": "1"
-          }
-        });
-
-        if (res.ok) {
-          dot.classList.add("on");
-          text.textContent = "연결됨";
-        } else {
-          dot.classList.remove("on");
-          text.textContent = "연결 실패";
-        }
-      } catch (e) {
-        console.error(e);
-        dot.classList.remove("on");
-        text.textContent = "연결 실패";
-      }
-    }
-
     function autoGrow(el) {
       el.style.height = 'auto';
       el.style.height = Math.min(el.scrollHeight, 100) + 'px';
@@ -1944,7 +1839,6 @@
     applySidebarDefault();
     loadConversationsFromStorage();
     renderSidebarList();
-    checkConnection();
 
     (function initHeaderBehavior() {
       const chat = document.getElementById('chatArea');
