@@ -3,12 +3,19 @@
 
 <head>
   <meta charset="UTF-8">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('korima_theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { }
+    })();
+  </script>
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#E8F0FF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#E8F0FF" id="themeColorMeta">
   <title>KORIMA AI</title>
   <style>
     :root {
@@ -38,6 +45,7 @@
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --header-offset: calc(88px + var(--safe-top));
       --island-h: 36px;
+      --sidebar-w: 0px;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -55,6 +63,39 @@
         --bubble-user: #0A84FF;
       }
     }
+
+    /* ── Explicit theme override (설정에서 선택 시 시스템 설정보다 우선) ── */
+    :root[data-theme="dark"] {
+      --glass-bg: rgba(30, 30, 32, 0.55);
+      --glass-bg-2: rgba(44, 44, 46, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --glass-highlight: rgba(255, 255, 255, 0.08);
+      --text-primary: #f5f5f7;
+      --text-secondary: rgba(245, 245, 247, 0.68);
+      --text-tertiary: rgba(245, 245, 247, 0.42);
+      --bubble-bot: rgba(58, 58, 60, 0.88);
+      --bubble-bot-text: #f5f5f7;
+      --accent: #0A84FF;
+      --bubble-user: #0A84FF;
+    }
+
+    :root[data-theme="dark"] body { background: #0a0a0c; }
+
+    :root[data-theme="light"] {
+      --glass-bg: rgba(255, 255, 255, 0.42);
+      --glass-bg-2: rgba(255, 255, 255, 0.28);
+      --glass-border: rgba(255, 255, 255, 0.72);
+      --glass-highlight: rgba(255, 255, 255, 0.55);
+      --text-primary: #0f172a;
+      --text-secondary: rgba(15, 23, 42, 0.62);
+      --text-tertiary: rgba(15, 23, 42, 0.42);
+      --bubble-bot: rgba(233, 233, 235, 0.85);
+      --bubble-bot-text: #0f172a;
+      --accent: #007AFF;
+      --bubble-user: #007AFF;
+    }
+
+    :root[data-theme="light"] body { background: #c8daf5; }
 
     * {
       box-sizing: border-box;
@@ -77,6 +118,8 @@
       position: relative;
       overscroll-behavior: none;
       -webkit-font-smoothing: antialiased;
+      padding-left: var(--sidebar-w);
+      transition: padding-left 0.5s var(--spring), background 0.3s ease;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -224,21 +267,52 @@
       overflow: hidden;
     }
 
-    /* ── Menu Button (Opens Sidebar) ── */
-    .menu-btn {
+    /* ── Dynamic Island (Connection Status) ── */
+    .dynamic-island-wrap {
       position: fixed;
       top: calc(10px + var(--safe-top));
-      left: 16px;
+      left: calc(50% + var(--sidebar-w) / 2);
+      transform: translateX(-50%);
       z-index: 100;
-      width: var(--island-h);
-      height: var(--island-h);
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      transition: left 0.5s var(--spring);
+    }
+
+    .dynamic-island {
+      pointer-events: auto;
       display: flex;
       align-items: center;
-      justify-content: center;
-      background: rgba(20, 20, 22, 0.82);
+      gap: 8px;
+      height: var(--island-h);
+      padding: 0 16px;
+      border-radius: 100px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.5s var(--spring), box-shadow 0.4s var(--spring-soft),
+        padding 0.45s var(--spring), gap 0.4s var(--spring-soft);
+      animation: islandEnter 0.7s var(--spring) both;
+    }
+
+    .dynamic-island:active {
+      transform: scale(0.96);
+      transition-duration: 0.15s;
+    }
+
+    /* Multi-layer glass */
+    .dynamic-island .glass-layer {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .dynamic-island .glass-base {
+      background: rgba(0, 0, 0, 0.72);
       backdrop-filter: blur(30px) saturate(180%);
       -webkit-backdrop-filter: blur(30px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -246,22 +320,32 @@
         0 8px 32px rgba(0, 0, 0, 0.35),
         inset 0 1px 0 rgba(255, 255, 255, 0.15),
         inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-      transition: transform 0.5s var(--spring), box-shadow 0.4s var(--spring-soft);
-      animation: islandEnter 0.7s var(--spring) both;
     }
 
-    .menu-btn:active {
-      transform: scale(0.9);
-      transition-duration: 0.15s;
+    @media (prefers-color-scheme: light) {
+      .dynamic-island .glass-base {
+        background: rgba(20, 20, 22, 0.82);
+      }
     }
 
-    .menu-btn svg {
-      width: 17px;
-      height: 17px;
-      stroke: #fff;
-      stroke-width: 2;
-      stroke-linecap: round;
-      fill: none;
+    .dynamic-island .glass-shine {
+      background: linear-gradient(180deg,
+          rgba(255, 255, 255, 0.18) 0%,
+          rgba(255, 255, 255, 0.04) 40%,
+          transparent 100%);
+    }
+
+    .dynamic-island .island-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
     }
 
     .dot {
@@ -303,300 +387,11 @@
       }
     }
 
-    /* ── Sidebar (Recent Chats & Settings) ── */
-    .sidebar-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 199;
-      background: rgba(0, 0, 0, 0.32);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s var(--spring-soft);
-    }
-
-    .sidebar-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      z-index: 200;
-      width: min(82vw, 300px);
-      transform: translateX(-100%);
-      transition: transform 0.45s var(--spring);
-      overflow: hidden;
-      border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
-    }
-
-    .sidebar.open {
-      transform: translateX(0);
-    }
-
-    .sidebar .glass-base {
-      position: absolute;
-      inset: 0;
-      background: var(--glass-bg);
-      backdrop-filter: blur(var(--blur)) saturate(200%);
-      -webkit-backdrop-filter: blur(var(--blur)) saturate(200%);
-      border-right: 1px solid var(--glass-border);
-      box-shadow: 12px 0 40px rgba(0, 0, 0, 0.12);
-      pointer-events: none;
-    }
-
-    .sidebar-inner {
-      position: relative;
-      z-index: 1;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: calc(16px + var(--safe-top)) 14px calc(16px + var(--safe-bottom));
-    }
-
-    .sidebar-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 4px 14px;
-      flex-shrink: 0;
-    }
-
-    .sidebar-title {
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--text-primary);
-    }
-
-    .sidebar-title span {
-      color: var(--accent);
-    }
-
-    .sidebar-close {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: none;
-      background: var(--glass-bg-2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.3s var(--spring);
-    }
-
-    .sidebar-close:active {
-      transform: scale(0.88);
-    }
-
-    .sidebar-close svg {
-      width: 14px;
-      height: 14px;
-      stroke: var(--text-secondary);
-      stroke-width: 2.2;
-      stroke-linecap: round;
-      fill: none;
-    }
-
-    .sidebar-tabs {
-      display: flex;
-      gap: 4px;
-      padding: 3px;
-      margin: 0 4px 16px;
-      background: var(--glass-bg-2);
-      border: 1px solid var(--glass-border);
-      border-radius: 100px;
-      flex-shrink: 0;
-    }
-
-    .tab-btn {
-      flex: 1;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      font-size: 12.5px;
-      font-weight: 700;
-      padding: 7px 0;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: background 0.3s var(--spring-soft), color 0.3s;
-    }
-
-    .tab-btn.active {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .tab-panel {
-      display: none;
-      flex: 1;
-      min-height: 0;
-      flex-direction: column;
-      padding: 0 4px;
-    }
-
-    .tab-panel.active {
-      display: flex;
-    }
-
-    .new-chat-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      border: 1px dashed var(--glass-border);
-      background: var(--glass-bg-2);
-      color: var(--accent);
-      font-size: 12.5px;
-      font-weight: 700;
-      padding: 10px;
-      border-radius: 14px;
-      cursor: pointer;
-      flex-shrink: 0;
-      margin-bottom: 10px;
-      transition: transform 0.3s var(--spring), background 0.3s;
-    }
-
-    .new-chat-btn:active {
-      transform: scale(0.97);
-    }
-
-    .new-chat-btn svg {
-      width: 14px;
-      height: 14px;
-      stroke: var(--accent);
-      stroke-width: 2.2;
-      stroke-linecap: round;
-      fill: none;
-    }
-
-    .conv-list {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .conv-empty {
-      text-align: center;
-      color: var(--text-tertiary);
-      font-size: 12px;
-      padding: 24px 8px;
-    }
-
-    .conv-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 10px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.25s var(--spring-soft);
-    }
-
-    .conv-item:hover,
-    .conv-item.active {
-      background: var(--glass-bg-2);
-    }
-
-    .conv-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .conv-title {
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--text-primary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .conv-date {
-      font-size: 10.5px;
-      color: var(--text-tertiary);
-      margin-top: 2px;
-    }
-
-    .conv-delete {
-      width: 24px;
-      height: 24px;
-      flex-shrink: 0;
-      border-radius: 50%;
-      border: none;
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      opacity: 0.5;
-      transition: opacity 0.2s, background 0.2s;
-    }
-
-    .conv-delete:hover {
-      opacity: 1;
-      background: rgba(255, 59, 48, 0.12);
-    }
-
-    .conv-delete svg {
-      width: 12px;
-      height: 12px;
-      stroke: var(--coral);
-      stroke-width: 2.2;
-      stroke-linecap: round;
-      fill: none;
-    }
-
-    .status-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: var(--glass-bg-2);
-      border: 1px solid var(--glass-border);
-      margin-bottom: 14px;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .status-row span#statusText {
-      flex: 1;
-    }
-
-    .recheck-btn {
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      font-size: 14px;
-      cursor: pointer;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.4s var(--spring), background 0.2s;
-    }
-
-    .recheck-btn:active {
-      transform: scale(0.85) rotate(180deg);
-      background: var(--glass-bg-2);
-    }
-
     /* ── Floating Header (iOS 26 style) ── */
     .header-wrap {
       position: fixed;
       top: calc(54px + var(--safe-top));
-      left: 0;
+      left: var(--sidebar-w);
       right: 0;
       margin-inline: auto;
       z-index: 90;
@@ -605,7 +400,8 @@
       animation: headerFloat 0.8s var(--spring) 0.1s both;
       transition:
         transform 0.45s var(--spring-soft),
-        opacity 0.35s ease;
+        opacity 0.35s ease,
+        left 0.5s var(--spring);
       will-change: transform, opacity;
       touch-action: pan-x;
       cursor: grab;
@@ -782,21 +578,64 @@
       }
     }
 
-    /* ── Settings Tab (inside Sidebar) ── */
-    #tabSettings label {
+    /* ── Settings Panel ── */
+    .settings {
+      display: none;
+      position: fixed;
+      top: calc(var(--header-offset) + 100px);
+      left: calc(50% + var(--sidebar-w) / 2);
+      transform: translateX(-50%) translateY(-8px);
+      z-index: 85;
+      width: calc(100% - 32px);
+      max-width: 488px;
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.35s var(--spring-soft), transform 0.4s var(--spring), left 0.5s var(--spring);
+      overflow: hidden;
+    }
+
+    .settings.open {
+      display: block;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      animation: settingsPop 0.45s var(--spring);
+    }
+
+    .settings .glass-base {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: var(--glass-bg-2);
+      backdrop-filter: blur(var(--blur-sm)) saturate(180%);
+      -webkit-backdrop-filter: blur(var(--blur-sm)) saturate(180%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 var(--glass-highlight);
+      pointer-events: none;
+    }
+
+    .settings-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .settings label {
       display: block;
       font-weight: 700;
       margin-bottom: 6px;
       color: var(--text-primary);
-      font-size: 12px;
+      font-size: 12.5px;
     }
 
-    #tabSettings input {
+    .settings input {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid var(--glass-border);
       border-radius: 12px;
-      font-size: 12.5px;
+      font-size: 13px;
       font-family: inherit;
       background: rgba(255, 255, 255, 0.35);
       color: var(--text-primary);
@@ -805,21 +644,91 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      #tabSettings input {
+      .settings input {
         background: rgba(0, 0, 0, 0.25);
       }
     }
 
-    #tabSettings input:focus {
+    .settings input:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
     }
 
-    #tabSettings .hint {
+    .settings .hint {
       color: var(--text-tertiary);
       margin-top: 6px;
-      font-size: 10.5px;
+      font-size: 11px;
       line-height: 1.55;
+    }
+
+    .settings button {
+      margin-top: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.3s var(--spring), filter 0.2s;
+    }
+
+    .settings button:active {
+      transform: scale(0.96);
+    }
+
+    .theme-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .settings-divider {
+      height: 1px;
+      background: var(--glass-border);
+      margin: 0 0 14px;
+    }
+
+    .seg-control {
+      display: flex;
+      gap: 2px;
+      padding: 2px;
+      border-radius: 100px;
+      background: var(--glass-bg-2);
+      border: 1px solid var(--glass-border);
+    }
+
+    .seg-btn {
+      padding: 6px 11px;
+      border-radius: 100px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-family: inherit;
+      transition: background 0.3s var(--spring-soft), color 0.3s;
+      white-space: nowrap;
+    }
+
+    .seg-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    @keyframes settingsPop {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-12px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+      }
     }
 
     /* ── Chat Area (Apple Messages) ── */
@@ -1018,13 +927,14 @@
     .composer-wrap {
       position: fixed;
       bottom: 0;
-      left: 50%;
+      left: calc(50% + var(--sidebar-w) / 2);
       transform: translateX(-50%);
       z-index: 90;
       width: 100%;
       max-width: 520px;
       padding: 8px 14px calc(10px + var(--safe-bottom));
       animation: composerUp 0.7s var(--spring) 0.15s both;
+      transition: left 0.5s var(--spring);
     }
 
     .composer {
@@ -1136,6 +1046,338 @@
       }
     }
 
+    /* ── Sidebar Toggle Button (fixed corner) ── */
+    .menu-btn-fixed {
+      position: fixed;
+      top: calc(14px + var(--safe-top));
+      left: 14px;
+      z-index: 160;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.35s var(--spring-soft), transform 0.4s var(--spring);
+      animation: islandEnter 0.7s var(--spring) both;
+    }
+
+    .menu-btn-fixed .glass-base {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: rgba(20, 20, 22, 0.82);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .menu-btn-fixed svg {
+      position: relative;
+      z-index: 1;
+      width: 17px;
+      height: 17px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .menu-btn-fixed:active {
+      transform: scale(0.9);
+    }
+
+    body.sidebar-open .menu-btn-fixed {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.7);
+    }
+
+    /* ── Sidebar Overlay (모바일 전용 딤 배경) ── */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 149;
+      background: rgba(0, 0, 0, 0.32);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--spring-soft);
+    }
+
+    body.sidebar-open .sidebar-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @media (min-width: 900px) {
+      .sidebar-overlay {
+        display: none;
+      }
+    }
+
+    /* ── Sidebar Panel (둥근 플로팅 카드, 대화 관리 + 설정) ── */
+    .sidebar {
+      position: fixed;
+      top: calc(12px + var(--safe-top));
+      bottom: calc(12px + var(--safe-bottom));
+      left: 12px;
+      width: min(78vw, 296px);
+      z-index: 150;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transform: translateX(calc(-100% - 24px));
+      transition: transform 0.5s var(--spring);
+      display: flex;
+      flex-direction: column;
+    }
+
+    body.sidebar-open .sidebar {
+      transform: translateX(0);
+    }
+
+    .sidebar>.glass-base {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur)) saturate(200%);
+      -webkit-backdrop-filter: blur(var(--blur)) saturate(200%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.16),
+        inset 0 1.5px 0 var(--glass-highlight);
+    }
+
+    .sidebar-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 14px 12px;
+    }
+
+    .sidebar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 4px 14px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-head h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .icon-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-bg-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      transition: transform 0.3s var(--spring), background 0.2s;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.88);
+    }
+
+    .icon-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .new-chat-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 11px 14px;
+      margin-bottom: 14px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      flex-shrink: 0;
+      transition: transform 0.3s var(--spring), filter 0.2s;
+      box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+    }
+
+    .new-chat-btn:active {
+      transform: scale(0.97);
+    }
+
+    .new-chat-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .sidebar-section-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      padding: 0 8px 6px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-list {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin: 0 -4px;
+      padding: 0 4px 8px;
+    }
+
+    .sidebar-list::-webkit-scrollbar {
+      width: 0;
+    }
+
+    .convo-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.25s;
+    }
+
+    .convo-item:hover {
+      background: var(--glass-bg-2);
+    }
+
+    .convo-item.active {
+      background: var(--glass-bg-2);
+      box-shadow: inset 0 0 0 1px var(--glass-border);
+    }
+
+    .convo-item .convo-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .convo-item .convo-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .convo-item .convo-time {
+      font-size: 10.5px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    .convo-item .convo-del {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      flex-shrink: 0;
+      transition: opacity 0.2s, background 0.2s, color 0.2s;
+    }
+
+    .convo-item:hover .convo-del,
+    .convo-item:focus-within .convo-del {
+      opacity: 1;
+    }
+
+    .convo-item .convo-del:hover {
+      background: rgba(255, 59, 48, 0.16);
+      color: var(--coral);
+    }
+
+    .convo-item .convo-del svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .sidebar-empty {
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 12px;
+      padding: 20px 12px;
+      line-height: 1.6;
+    }
+
+    .sidebar-footer {
+      padding-top: 10px;
+      border-top: 1px solid var(--glass-border);
+      flex-shrink: 0;
+    }
+
+    .settings-trigger {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+
+    .settings-trigger:hover {
+      background: var(--glass-bg-2);
+    }
+
+    .settings-trigger svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--text-secondary);
+    }
+
+    /* ── Desktop layout: 사이드바가 콘텐츠를 밀어내는 고정 패널로 동작 ── */
+    @media (min-width: 900px) {
+      body.sidebar-open {
+        --sidebar-w: 332px;
+      }
+    }
+
     /* Scrollbar */
     .chat::-webkit-scrollbar {
       width: 0;
@@ -1169,58 +1411,67 @@
     <div class="blob blob-4"></div>
   </div>
 
+  <!-- Sidebar toggle (닫혀있을 때만 표시) -->
+  <button class="menu-btn-fixed" id="menuBtn" onclick="toggleSidebar()" aria-label="대화 목록 및 설정 열기">
+    <div class="glass-base"></div>
+    <svg viewBox="0 0 24 24">
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  </button>
+
+  <!-- Sidebar overlay (모바일 전용) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar: 최근 대화 관리 + 설정 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="glass-base"></div>
+    <div class="sidebar-inner">
+      <div class="sidebar-head">
+        <h2>대화</h2>
+        <button class="icon-btn" onclick="closeSidebar()" aria-label="사이드바 닫기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <button class="new-chat-btn" onclick="startNewChat()">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z" />
+        </svg>
+        <span>새 대화</span>
+      </button>
+
+      <div class="sidebar-section-label">최근 대화</div>
+      <div class="sidebar-list" id="sidebarList"></div>
+
+      <div class="sidebar-footer">
+        <button class="settings-trigger" onclick="openSettingsFromSidebar()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" />
+          </svg>
+          <span>설정</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
   <div class="app">
 
-    <!-- Menu Button -->
-    <button class="menu-btn" onclick="openSidebar('chats')" aria-label="메뉴 열기">
-      <svg viewBox="0 0 24 24">
-        <path d="M3 6h18M3 12h18M3 18h18" />
-      </svg>
-    </button>
-
-    <!-- Sidebar: Recent Chats & Settings -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-    <aside class="sidebar" id="sidebar">
-      <div class="glass-base"></div>
-      <div class="sidebar-inner">
-        <div class="sidebar-top">
-          <div class="sidebar-title">KORIMA <span>AI</span></div>
-          <button class="sidebar-close" onclick="closeSidebar()" aria-label="닫기">
-            <svg viewBox="0 0 24 24">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
-        </div>
-
-        <div class="sidebar-tabs">
-          <button class="tab-btn active" id="tabBtnChats" onclick="switchTab('chats')">대화</button>
-          <button class="tab-btn" id="tabBtnSettings" onclick="switchTab('settings')">설정</button>
-        </div>
-
-        <!-- Chats Tab -->
-        <div class="tab-panel active" id="tabChats">
-          <button class="new-chat-btn" onclick="newConversation()">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-            <span>새 대화</span>
-          </button>
-          <div class="conv-list" id="convList"></div>
-        </div>
-
-        <!-- Settings Tab -->
-        <div class="tab-panel" id="tabSettings">
-          <div class="status-row">
-            <span class="dot" id="statusDot"></span>
-            <span id="statusText">연결 안 됨</span>
-            <button class="recheck-btn" onclick="checkConnection()" aria-label="연결 상태 다시 확인">↻</button>
-          </div>
-          <label for="apiUrl">서버 주소 (개발자 모드)</label>
-          <input type="text" id="apiUrl" value="https://aware-jot-salvation.ngrok-free.dev/chat" readonly>
-          <div class="hint">접속할시에 트래픽 부하를 막기 위해 KORIMA AI에서 차단되고 서버에 기록됩니다.</div>
+    <!-- Dynamic Island: Connection Status -->
+    <div class="dynamic-island-wrap">
+      <div class="dynamic-island" id="statusPill" onclick="toggleSettings()" role="button" aria-label="연결 상태 및 설정">
+        <div class="glass-layer glass-base"></div>
+        <div class="glass-layer glass-shine"></div>
+        <div class="island-content">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">연결 안 됨</span>
         </div>
       </div>
-    </aside>
+    </div>
 
     <!-- Floating Header -->
     <div class="header-wrap" id="headerWrap">
@@ -1236,6 +1487,26 @@
           <p class="sub">원주고등학교 학생이 직접 만든 AI 모델과 실시간으로 대화해보세요. 무엇이든 편하게 물어보세요!</p>
         </div>
       </header>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings" id="settingsPanel">
+      <div class="glass-base"></div>
+      <div class="settings-inner">
+        <div class="theme-row">
+          <label style="margin-bottom:0;">테마</label>
+          <div class="seg-control" id="themeSegControl">
+            <button class="seg-btn" data-theme="system" onclick="setTheme('system')">시스템</button>
+            <button class="seg-btn" data-theme="light" onclick="setTheme('light')">라이트</button>
+            <button class="seg-btn" data-theme="dark" onclick="setTheme('dark')">다크</button>
+          </div>
+        </div>
+        <div class="settings-divider"></div>
+        <label for="apiUrl">(개발자 모드)</label>
+        <input type="text" id="apiUrl" value="https://aware-jot-salvation.ngrok-free.dev/chat" readonly>
+        <div class="hint">접속할시에 트래픽 부하를 막기 위해 KORIMA AI에서 차단되고 서버에 기록됩니다.</div>
+        <button onclick="saveApiUrl()">연결하기</button>
+      </div>
     </div>
 
     <!-- Chat -->
@@ -1278,145 +1549,255 @@
   <script>
     const API_URL = "https://aware-jot-salvation.ngrok-free.dev/chat";
     let history = [];
+    let fullHistory = [];
     let isSending = false;
-
-    // 새 대화를 시작할 때 채팅창에 다시 넣을 기본 화면(인트로 + 예시 질문)
-    const INTRO_HTML = document.getElementById('chatArea').innerHTML;
-
     let conversations = [];
-    let currentConv = null; // { id, title, messages: [{role, text}], updatedAt }
+    let currentConvoId = null;
 
-    /* ── Sidebar open/close & tabs ── */
-    function openSidebar(tab) {
-      document.getElementById('sidebar').classList.add('open');
-      document.getElementById('sidebarOverlay').classList.add('open');
-      if (tab) switchTab(tab);
+    function toggleSettings() {
+      document.getElementById('settingsPanel').classList.toggle('open');
+    }
+
+    function saveApiUrl() {
+      document.getElementById('settingsPanel').classList.remove('open');
+      checkConnection();
+    }
+
+    /* ══════════ 사이드바 열기/닫기 ══════════ */
+    function isDesktop() {
+      return window.matchMedia('(min-width: 900px)').matches;
+    }
+
+    function toggleSidebar() {
+      const open = document.body.classList.toggle('sidebar-open');
+      if (isDesktop()) {
+        localStorage.setItem('korima_sidebar_state', open ? 'open' : 'closed');
+      }
     }
 
     function closeSidebar() {
-      document.getElementById('sidebar').classList.remove('open');
-      document.getElementById('sidebarOverlay').classList.remove('open');
+      document.body.classList.remove('sidebar-open');
+      if (isDesktop()) {
+        localStorage.setItem('korima_sidebar_state', 'closed');
+      }
     }
 
-    function switchTab(tab) {
-      const isChats = tab === 'chats';
-      document.getElementById('tabBtnChats').classList.toggle('active', isChats);
-      document.getElementById('tabBtnSettings').classList.toggle('active', !isChats);
-      document.getElementById('tabChats').classList.toggle('active', isChats);
-      document.getElementById('tabSettings').classList.toggle('active', !isChats);
+    function applySidebarDefault() {
+      if (isDesktop()) {
+        const stored = localStorage.getItem('korima_sidebar_state');
+        if (stored === 'closed') {
+          document.body.classList.remove('sidebar-open');
+        } else {
+          document.body.classList.add('sidebar-open');
+        }
+      } else {
+        document.body.classList.remove('sidebar-open');
+      }
     }
 
-    /* ── Conversation storage (localStorage) ── */
-    function loadConversations() {
+    window.addEventListener('resize', applySidebarDefault);
+
+    function openSettingsFromSidebar() {
+      document.getElementById('settingsPanel').classList.add('open');
+      if (!isDesktop()) closeSidebar();
+    }
+
+    /* ══════════ 최근 대화 관리 ══════════ */
+    function saveConversationsToStorage() {
       try {
-        conversations = JSON.parse(localStorage.getItem('korima_conversations') || '[]');
+        localStorage.setItem('korima_conversations', JSON.stringify(conversations));
+      } catch (e) {
+        console.error('대화 저장 실패:', e);
+      }
+    }
+
+    function loadConversationsFromStorage() {
+      try {
+        const raw = localStorage.getItem('korima_conversations');
+        conversations = raw ? JSON.parse(raw) : [];
       } catch (e) {
         conversations = [];
       }
     }
 
-    function saveConversations() {
-      try {
-        localStorage.setItem('korima_conversations', JSON.stringify(conversations));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function formatConvDate(ts) {
+    function formatRelativeTime(ts) {
+      const diffMin = Math.floor((Date.now() - ts) / 60000);
+      if (diffMin < 1) return '방금 전';
+      if (diffMin < 60) return diffMin + '분 전';
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr < 24) return diffHr + '시간 전';
+      const diffDay = Math.floor(diffHr / 24);
+      if (diffDay < 7) return diffDay + '일 전';
       const d = new Date(ts);
-      const now = new Date();
-      if (d.toDateString() === now.toDateString()) {
-        return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-      }
-      return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+      return (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
     }
 
-    function renderConversationList() {
-      const listEl = document.getElementById('convList');
-      if (!conversations.length) {
-        listEl.innerHTML = '<div class="conv-empty">아직 대화가 없어요</div>';
+    function renderSidebarList() {
+      const list = document.getElementById('sidebarList');
+      list.innerHTML = '';
+
+      if (conversations.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'sidebar-empty';
+        empty.textContent = '아직 저장된 대화가 없어요. 메시지를 보내면 자동으로 저장돼요.';
+        list.appendChild(empty);
         return;
       }
+
       const sorted = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt);
-      listEl.innerHTML = sorted.map(c => `
-        <div class="conv-item ${currentConv && currentConv.id === c.id ? 'active' : ''}" onclick="switchConversation('${c.id}')">
-          <div class="conv-info">
-            <div class="conv-title">${escapeHtml(c.title || '새 대화')}</div>
-            <div class="conv-date">${formatConvDate(c.updatedAt)}</div>
-          </div>
-          <button class="conv-delete" onclick="event.stopPropagation(); deleteConversation('${c.id}')" aria-label="대화 삭제">
-            <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
-          </button>
-        </div>
-      `).join('');
-    }
+      sorted.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'convo-item' + (c.id === currentConvoId ? ' active' : '');
+        item.onclick = () => loadConversation(c.id);
 
-    function ensureConversation() {
-      if (!currentConv) {
-        currentConv = { id: 'c' + Date.now(), title: null, messages: [], updatedAt: Date.now() };
-        conversations.push(currentConv);
-        localStorage.setItem('korima_active_id', currentConv.id);
-      }
-      return currentConv;
-    }
+        const textWrap = document.createElement('div');
+        textWrap.className = 'convo-text';
 
-    function rebuildHistory(messages) {
-      const h = [];
-      messages.forEach(m => {
-        if (m.role === 'user') h.push({ role: 'user', content: [{ type: 'text', text: m.text }] });
-        else if (m.role === 'bot') h.push({ role: 'assistant', content: [{ type: 'text', text: m.text }] });
+        const title = document.createElement('div');
+        title.className = 'convo-title';
+        title.textContent = c.title || '새 대화';
+
+        const time = document.createElement('div');
+        time.className = 'convo-time';
+        time.textContent = formatRelativeTime(c.updatedAt);
+
+        textWrap.appendChild(title);
+        textWrap.appendChild(time);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'convo-del';
+        delBtn.setAttribute('aria-label', '대화 삭제');
+        delBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 3h6l.7 1.5H19v2H5v-2h3.3L9 3zM7 8h10l-.9 12.1a1 1 0 01-1 .9H8.9a1 1 0 01-1-.9L7 8zm3 2v8h1.4v-8H10zm3.6 0v8H15v-8h-1.4z"/></svg>';
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteConversation(c.id);
+        };
+
+        item.appendChild(textWrap);
+        item.appendChild(delBtn);
+        list.appendChild(item);
       });
-      return h.length > 20 ? h.slice(-8) : h;
     }
 
-    function newConversation() {
-      currentConv = null;
-      history = [];
-      document.getElementById('chatArea').innerHTML = INTRO_HTML;
-      const input = document.getElementById('input');
-      input.value = '';
-      input.style.height = 'auto';
-      updateSendBtn();
-      localStorage.removeItem('korima_active_id');
-      renderConversationList();
-      closeSidebar();
-    }
-
-    function switchConversation(id) {
-      const conv = conversations.find(c => c.id === id);
-      if (!conv) return;
-      currentConv = conv;
-      history = rebuildHistory(conv.messages);
-      const chat = document.getElementById('chatArea');
-      if (!conv.messages.length) {
-        chat.innerHTML = INTRO_HTML;
-      } else {
-        chat.innerHTML = '';
-        conv.messages.forEach(m => appendMessage(m.role, m.text));
+    function persistCurrentConversation() {
+      if (fullHistory.length === 0) return;
+      if (!currentConvoId) {
+        currentConvoId = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
       }
-      localStorage.setItem('korima_active_id', id);
-      document.getElementById('input').value = '';
+      const firstUserMsg = fullHistory.find(h => h.role === 'user');
+      const rawTitle = firstUserMsg && firstUserMsg.content && firstUserMsg.content[0]
+        ? firstUserMsg.content[0].text : '새 대화';
+      const title = rawTitle.length > 28 ? rawTitle.slice(0, 28) + '…' : rawTitle;
+
+      const entry = {
+        id: currentConvoId,
+        title: title,
+        history: fullHistory.slice(),
+        updatedAt: Date.now()
+      };
+
+      const idx = conversations.findIndex(c => c.id === currentConvoId);
+      if (idx >= 0) conversations[idx] = entry; else conversations.push(entry);
+
+      saveConversationsToStorage();
+      renderSidebarList();
+    }
+
+    function renderIntroChips() {
+      const chat = document.getElementById('chatArea');
+      chat.innerHTML =
+        '<div class="intro"><b>KORIMA AI</b>는 학생들이 직접 학습시킨 AI 모델입니다. 아래 예시 질문을 눌러보거나, 궁금한 걸 자유롭게 입력해보세요.</div>' +
+        '<div class="chips" id="chips">' +
+        '<div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>넌 누구야?</span></div>' +
+        '<div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>AI는 어떻게 학습하는거야?</span></div>' +
+        '<div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>재밌는 이야기 하나 해줘</span></div>' +
+        '<div class="chip" onclick="useChip(this)"><div class="glass-base"></div><span>오늘 날씨에 어울리는 시 써줘</span></div>' +
+        '</div>';
+    }
+
+    function rebuildChatFromHistory() {
+      const chat = document.getElementById('chatArea');
+      chat.innerHTML = '';
+      if (fullHistory.length === 0) {
+        renderIntroChips();
+        return;
+      }
+      fullHistory.forEach(h => {
+        const role = h.role === 'assistant' ? 'bot' : 'user';
+        const text = (h.content && h.content[0] && h.content[0].text) || '';
+        appendMessage(role, text);
+      });
+    }
+
+    function startNewChat() {
+      currentConvoId = null;
+      history = [];
+      fullHistory = [];
+      renderIntroChips();
       updateSendBtn();
-      renderConversationList();
-      closeSidebar();
+      renderSidebarList();
+      if (!isDesktop()) closeSidebar();
+    }
+
+    function loadConversation(id) {
+      const convo = conversations.find(c => c.id === id);
+      if (!convo) return;
+      currentConvoId = id;
+      fullHistory = convo.history.slice();
+      history = fullHistory.length > 20 ? fullHistory.slice(-8) : fullHistory.slice();
+      rebuildChatFromHistory();
+      renderSidebarList();
+      if (!isDesktop()) closeSidebar();
     }
 
     function deleteConversation(id) {
+      if (!confirm('이 대화를 삭제할까요?')) return;
       conversations = conversations.filter(c => c.id !== id);
-      saveConversations();
-      if (currentConv && currentConv.id === id) {
-        newConversation();
+      saveConversationsToStorage();
+      if (id === currentConvoId) {
+        startNewChat();
       } else {
-        renderConversationList();
+        renderSidebarList();
       }
     }
+
+    /* ══════════ 테마 (시스템 / 라이트 / 다크) ══════════ */
+    function getEffectiveIsDark() {
+      const explicit = document.documentElement.getAttribute('data-theme');
+      if (explicit === 'dark') return true;
+      if (explicit === 'light') return false;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    function updateThemeColorMeta() {
+      const meta = document.getElementById('themeColorMeta');
+      if (meta) meta.setAttribute('content', getEffectiveIsDark() ? '#000000' : '#E8F0FF');
+    }
+
+    function updateSegButtons(theme) {
+      document.querySelectorAll('.seg-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+      });
+    }
+
+    function applyTheme(theme) {
+      if (theme === 'light' || theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', theme);
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+      updateThemeColorMeta();
+      updateSegButtons(theme);
+    }
+
+    function setTheme(theme) {
+      localStorage.setItem('korima_theme', theme);
+      applyTheme(theme);
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (!document.documentElement.getAttribute('data-theme')) updateThemeColorMeta();
+    });
 
     async function checkConnection() {
       const dot = document.getElementById('statusDot');
@@ -1502,22 +1883,14 @@
       if (!text || isSending) return;
 
       if (!API_URL) {
-        openSidebar('settings');
+        document.getElementById('settingsPanel').classList.add('open');
         return;
       }
-
-      ensureConversation();
 
       const chips = document.getElementById('chips');
       if (chips) chips.remove();
 
       appendMessage('user', text);
-      currentConv.messages.push({ role: 'user', text });
-      currentConv.updatedAt = Date.now();
-      if (!currentConv.title) currentConv.title = text.slice(0, 40);
-      saveConversations();
-      renderConversationList();
-
       input.value = "";
       input.style.height = 'auto';
       isSending = true;
@@ -1545,13 +1918,12 @@
           const data = await res.json();
           const reply = data.response || '(응답이 비어있습니다)';
           appendMessage('bot', reply);
-          currentConv.messages.push({ role: 'bot', text: reply });
-          currentConv.updatedAt = Date.now();
-          saveConversations();
-          renderConversationList();
           history.push({ role: "user", content: [{ type: "text", text: text }] });
           history.push({ role: "assistant", content: [{ type: "text", text: reply }] });
+          fullHistory.push({ role: "user", content: [{ type: "text", text: text }] });
+          fullHistory.push({ role: "assistant", content: [{ type: "text", text: reply }] });
           if (history.length > 20) history = history.slice(-8);
+          persistCurrentConversation();
         }
       } catch (e) {
         removeTyping();
@@ -1562,23 +1934,10 @@
       }
     }
 
-    // 저장된 대화 목록을 불러오고, 마지막으로 보던 대화가 있으면 이어서 표시
-    loadConversations();
-    (function restoreActiveConversation() {
-      const activeId = localStorage.getItem('korima_active_id');
-      if (!activeId) return;
-      const found = conversations.find(c => c.id === activeId);
-      if (!found) return;
-      currentConv = found;
-      history = rebuildHistory(found.messages);
-      if (found.messages.length) {
-        const chat = document.getElementById('chatArea');
-        chat.innerHTML = '';
-        found.messages.forEach(m => appendMessage(m.role, m.text));
-      }
-    })();
-    renderConversationList();
-
+    applyTheme(localStorage.getItem('korima_theme') || 'system');
+    applySidebarDefault();
+    loadConversationsFromStorage();
+    renderSidebarList();
     checkConnection();
 
     (function initHeaderBehavior() {
