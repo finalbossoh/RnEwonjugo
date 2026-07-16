@@ -700,8 +700,9 @@
       border: 1px solid var(--glass-border);
     }
 
-    .seg-btn {
+    .settings .seg-btn {
       padding: 6px 11px;
+      margin-top: 0;
       border-radius: 100px;
       border: none;
       background: transparent;
@@ -714,9 +715,13 @@
       white-space: nowrap;
     }
 
-    .seg-btn.active {
+    .settings .seg-btn.active {
       background: var(--accent);
       color: #fff;
+    }
+
+    .settings .seg-btn:active {
+      transform: scale(0.94);
     }
 
     @keyframes settingsPop {
@@ -1093,6 +1098,7 @@
     }
 
     body.sidebar-open .menu-btn-fixed {
+      animation: none;
       opacity: 0;
       pointer-events: none;
       transform: scale(0.7);
